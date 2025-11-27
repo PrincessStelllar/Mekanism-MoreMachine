@@ -21,7 +21,6 @@ import mekanism.common.MekanismLang;
 import mekanism.common.block.attribute.*;
 import mekanism.common.block.attribute.AttributeHasBounding.HandleBoundingBlock;
 import mekanism.common.block.attribute.AttributeHasBounding.TriBooleanFunction;
-import mekanism.common.config.MekanismConfig;
 import mekanism.common.content.blocktype.Machine;
 import mekanism.common.content.blocktype.Machine.MachineBuilder;
 import mekanism.common.lib.math.Pos3D;
@@ -31,7 +30,6 @@ import mekanism.common.registration.impl.TileEntityTypeRegistryObject;
 import mekanism.common.registries.MekanismSounds;
 import mekanism.common.util.ChemicalUtil;
 import mekanism.generators.common.GeneratorsLang;
-import mekanism.generators.common.config.MekanismGeneratorsConfig;
 import mekanism.generators.common.content.blocktype.Generator;
 import mekanism.generators.common.registries.GeneratorsSounds;
 
@@ -75,7 +73,7 @@ public class LargeMachineBlockTypes {
             .createMachine(() -> LargeMachineTileEntityTypes.LARGE_CHEMICAL_INFUSER, MekanismLang.DESCRIPTION_CHEMICAL_INFUSER)
             .withGui(() -> LargeMachineContainerTypes.LARGE_CHEMICAL_INFUSER)
             .withSound(MekanismSounds.CHEMICAL_INFUSER)
-            .withEnergyConfig(MekanismConfig.usage.chemicalInfuser, MekanismConfig.storage.chemicalInfuser)
+            .withEnergyConfig(MoreMachineConfig.usage.largeChemicalInfuser, MoreMachineConfig.storage.largeChemicalInfuser)
             .withSideConfig(TransmissionType.CHEMICAL, TransmissionType.ITEM, TransmissionType.ENERGY)
             .withCustomShape(LargeMachineBlockShapes.LARGE_CHEMICAL_INFUSER)
             .with(AttributeCustomSelectionBox.JSON)
@@ -88,7 +86,7 @@ public class LargeMachineBlockTypes {
             .createMachine(() -> LargeMachineTileEntityTypes.LARGE_ELECTROLYTIC_SEPARATOR, MekanismLang.DESCRIPTION_ELECTROLYTIC_SEPARATOR)
             .withGui(() -> LargeMachineContainerTypes.LARGE_ELECTROLYTIC_SEPARATOR)
             .withSound(MekanismSounds.ELECTROLYTIC_SEPARATOR)
-            .withEnergyConfig(() -> MathUtils.multiplyClamped(2, ChemicalUtil.hydrogenEnergyDensity()), MekanismConfig.storage.electrolyticSeparator)
+            .withEnergyConfig(() -> MathUtils.multiplyClamped(2, ChemicalUtil.hydrogenEnergyDensity()), MoreMachineConfig.storage.largeElectrolyticSeparator)
             .withSideConfig(TransmissionType.FLUID, TransmissionType.CHEMICAL, TransmissionType.ITEM, TransmissionType.ENERGY)
             .withCustomShape(LargeMachineBlockShapes.LARGE_ELECTROLYTIC_SEPARATOR)
             .with(AttributeCustomSelectionBox.JSON)
@@ -119,7 +117,8 @@ public class LargeMachineBlockTypes {
     public static final Machine<TileEntityLargeSolarNeutronActivator> LARGE_SOLAR_NEUTRON_ACTIVATOR = MachineBuilder
             .createMachine(() -> LargeMachineTileEntityTypes.LARGE_SOLAR_NEUTRON_ACTIVATOR, MekanismLang.DESCRIPTION_SOLAR_NEUTRON_ACTIVATOR)
             .withGui(() -> LargeMachineContainerTypes.LARGE_SOLAR_NEUTRON_ACTIVATOR)
-            .without(AttributeParticleFX.class, AttributeUpgradeSupport.class)
+            .without(AttributeParticleFX.class)
+            .with(AttributeUpgradeSupport.SPEED_ONLY)
             .withCustomShape(LargeMachineBlockShapes.LARGE_SOLAR_NEUTRON_ACTIVATOR)
             .with(AttributeCustomSelectionBox.JSON)
             .withSideConfig(TransmissionType.CHEMICAL, TransmissionType.ITEM)
@@ -132,7 +131,7 @@ public class LargeMachineBlockTypes {
     public static final Generator<TileEntityLargeHeatGenerator> LARGE_HEAT_GENERATOR = Generator.GeneratorBuilder
             .createGenerator(() -> LargeMachineTileEntityTypes.LARGE_HEAT_GENERATOR, GeneratorsLang.DESCRIPTION_HEAT_GENERATOR)
             .withGui(() -> LargeMachineContainerTypes.LARGE_HEAT_GENERATOR)
-            .withEnergyConfig(MekanismGeneratorsConfig.storageConfig.heatGenerator)
+            .withEnergyConfig(MoreMachineConfig.storage.largeHeatGenerator)
             .withCustomShape(LargeMachineBlockShapes.LARGE_HEAT_GENERATOR)
             .withSound(GeneratorsSounds.HEAT_GENERATOR)
             .with(AttributeUpgradeSupport.MUFFLING_ONLY)
@@ -149,7 +148,7 @@ public class LargeMachineBlockTypes {
     public static final Generator<TileEntityLargeGasGenerator> LARGE_GAS_BURNING_GENERATOR = Generator.GeneratorBuilder
             .createGenerator(() -> LargeMachineTileEntityTypes.LARGE_GAS_BURNING_GENERATOR, GeneratorsLang.DESCRIPTION_GAS_BURNING_GENERATOR)
             .withGui(() -> LargeMachineContainerTypes.LARGE_GAS_BURNING_GENERATOR)
-            .withEnergyConfig(() -> MathUtils.multiplyClamped(1_000, ChemicalUtil.hydrogenEnergyDensity()))
+            .withEnergyConfig(() -> MathUtils.multiplyClamped(1_024_000_000L, ChemicalUtil.hydrogenEnergyDensity()))
             .withCustomShape(LargeMachineBlockShapes.LARGE_GAS_BURNING_GENERATOR)
             .with(AttributeCustomSelectionBox.JSON)
             .withSound(GeneratorsSounds.GAS_BURNING_GENERATOR)

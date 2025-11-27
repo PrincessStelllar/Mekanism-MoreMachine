@@ -57,7 +57,6 @@ public class LargeMachineTileEntityTypes {
             .clientTicker(TileEntityMekanism::tickClient)
             .serverTicker(TileEntityMekanism::tickServer)
             .withSimple(Capabilities.CONFIG_CARD)
-            .without(Capabilities.CHEMICAL.block(), Capabilities.FLUID.block(), Capabilities.ITEM.block(), Capabilities.ENERGY.block())
             .build();
 
     public static final TileEntityTypeRegistryObject<TileEntityLargeChemicalInfuser> LARGE_CHEMICAL_INFUSER = LM_TILE_ENTITY_TYPES
@@ -72,14 +71,12 @@ public class LargeMachineTileEntityTypes {
             .clientTicker(TileEntityMekanism::tickClient)
             .serverTicker(TileEntityMekanism::tickServer)
             .withSimple(Capabilities.CONFIG_CARD)
-            .without(Capabilities.CHEMICAL.block(), Capabilities.FLUID.block(), Capabilities.ITEM.block(), Capabilities.ENERGY.block())
             .build();
 
     public static final TileEntityTypeRegistryObject<TileEntityLargeSolarNeutronActivator> LARGE_SOLAR_NEUTRON_ACTIVATOR = LM_TILE_ENTITY_TYPES
             .mekBuilder(LargeMachineBlocks.LARGE_SOLAR_NEUTRON_ACTIVATOR, TileEntityLargeSolarNeutronActivator::new)
             .serverTicker(TileEntityMekanism::tickServer)
             .withSimple(Capabilities.CONFIG_CARD)
-            .without(Capabilities.CHEMICAL.block(), Capabilities.ITEM.block())
             .build();
 
     public static final TileEntityTypeRegistryObject<TileEntityLargeHeatGenerator> LARGE_HEAT_GENERATOR = LM_TILE_ENTITY_TYPES
@@ -87,7 +84,6 @@ public class LargeMachineTileEntityTypes {
             .clientTicker(TileEntityMekanism::tickClient)
             .serverTicker(TileEntityMekanism::tickServer)
             .withSimple(Capabilities.CONFIG_CARD)
-            .without(Capabilities.FLUID.block(), Capabilities.ITEM.block(), Capabilities.ENERGY.block())
             .build();
 
     public static final TileEntityTypeRegistryObject<TileEntityLargeGasGenerator> LARGE_GAS_BURNING_GENERATOR = LM_TILE_ENTITY_TYPES
@@ -95,6 +91,5 @@ public class LargeMachineTileEntityTypes {
             .clientTicker(TileEntityMekanism::tickClient)
             .serverTicker(TileEntityMekanism::tickServer)
             .withSimple(Capabilities.CONFIG_CARD)
-            .without(Capabilities.CHEMICAL.block(), Capabilities.ITEM.block(), Capabilities.ENERGY.block())
             .build();
 }

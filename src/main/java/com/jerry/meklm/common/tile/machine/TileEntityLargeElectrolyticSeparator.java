@@ -53,7 +53,7 @@ import mekanism.common.recipe.MekanismRecipeType;
 import mekanism.common.recipe.lookup.ISingleRecipeLookupHandler.FluidRecipeLookupHandler;
 import mekanism.common.recipe.lookup.cache.InputRecipeCache;
 import mekanism.common.registries.MekanismDataComponents;
-import mekanism.common.tile.TileEntityChemicalTank;
+import mekanism.common.tile.TileEntityChemicalTank.GasMode;
 import mekanism.common.tile.component.TileComponentEjector;
 import mekanism.common.tile.component.config.ConfigInfo;
 import mekanism.common.tile.component.config.DataType;
@@ -91,8 +91,8 @@ public class TileEntityLargeElectrolyticSeparator extends TileEntityRecipeLargeM
     /**
      * The maximum amount of gas this block can store.
      */
-    public static final long MAX_GAS = 2_400;
-    public static final int MAX_FLUID = 24 * FluidType.BUCKET_VOLUME;
+    public static final long MAX_GAS = 24 * FluidType.BUCKET_VOLUME * FluidType.BUCKET_VOLUME;
+    public static final int MAX_FLUID = 24 * FluidType.BUCKET_VOLUME * FluidType.BUCKET_VOLUME;
 
     private static final List<RecipeError> TRACKED_ERROR_TYPES = List.of(
             RecipeError.NOT_ENOUGH_ENERGY,
@@ -133,9 +133,9 @@ public class TileEntityLargeElectrolyticSeparator extends TileEntityRecipeLargeM
                             docPlaceholder = "right output tank")
     public IChemicalTank rightTank;
     @SyntheticComputerMethod(getter = "getLeftOutputDumpingMode")
-    public TileEntityChemicalTank.GasMode dumpLeft = TileEntityChemicalTank.GasMode.IDLE;
+    public GasMode dumpLeft = GasMode.IDLE;
     @SyntheticComputerMethod(getter = "getRightOutputDumpingMode")
-    public TileEntityChemicalTank.GasMode dumpRight = TileEntityChemicalTank.GasMode.IDLE;
+    public GasMode dumpRight = GasMode.IDLE;
     @WrappingComputerMethod(wrapper = SpecialComputerMethodWrapper.ComputerIInventorySlotWrapper.class, methodNames = "getInputItem", docPlaceholder = "input item slot")
     FluidInventorySlot fluidSlot;
     @WrappingComputerMethod(wrapper = SpecialComputerMethodWrapper.ComputerIInventorySlotWrapper.class, methodNames = "getLeftOutputItem", docPlaceholder = "left output item slot")
@@ -151,6 +151,7 @@ public class TileEntityLargeElectrolyticSeparator extends TileEntityRecipeLargeM
     private long recipeEnergyMultiplier = 1L;
     private int baselineMaxOperations = 1;
     private long dumpRate = BASE_DUMP_RATE;
+    private int baseOperations = 8;
     @Getter
     private FixedUsageEnergyContainer<TileEntityLargeElectrolyticSeparator> energyContainer;
 
@@ -179,9 +180,9 @@ public class TileEntityLargeElectrolyticSeparator extends TileEntityRecipeLargeM
         ejectorComponent.setOutputData(configComponent, TransmissionType.ITEM, TransmissionType.CHEMICAL)
                 .setCanTankEject(tank -> {
                     if (tank == leftTank) {
-                        return dumpLeft != TileEntityChemicalTank.GasMode.DUMPING;
+                        return dumpLeft != GasMode.DUMPING;
                     } else if (tank == rightTank) {
-                        return dumpRight != TileEntityChemicalTank.GasMode.DUMPING;
+                        return dumpRight != GasMode.DUMPING;
                     }
                     return true;
                 });
@@ -251,17 +252,17 @@ public class TileEntityLargeElectrolyticSeparator extends TileEntityRecipeLargeM
         return sendUpdatePacket;
     }
 
-    private void handleTank(IChemicalTank tank, TileEntityChemicalTank.GasMode mode) {
+    private void handleTank(IChemicalTank tank, GasMode mode) {
         if (!tank.isEmpty()) {
-            if (mode == TileEntityChemicalTank.GasMode.DUMPING) {
+            if (mode == GasMode.DUMPING) {
                 tank.shrinkStack(dumpRate, Action.EXECUTE);
-            } else if (mode == TileEntityChemicalTank.GasMode.DUMPING_EXCESS) {
+            } else if (mode == GasMode.DUMPING_EXCESS) {
                 long target = getDumpingExcessTarget(tank);
                 long stored = tank.getStored();
                 if (target < stored) {
                     // Dump excess that we need to get to the target (capping at our eject rate for how much we can dump
                     // at once)
-                    tank.shrinkStack(Math.min(stored - target, MekanismConfig.general.chemicalAutoEjectRate.get()), Action.EXECUTE);
+                    tank.shrinkStack(Math.min(stored - target, MekanismConfig.general.chemicalAutoEjectRate.get() * 10), Action.EXECUTE);
                 }
             }
         }
@@ -283,7 +284,7 @@ public class TileEntityLargeElectrolyticSeparator extends TileEntityRecipeLargeM
         // - the tile can function
         // - at least one side is not set to dumping excess
         // - at least one side is not at the dumping excess target
-        return super.canFunction() && (dumpLeft != TileEntityChemicalTank.GasMode.DUMPING_EXCESS || dumpRight != TileEntityChemicalTank.GasMode.DUMPING_EXCESS || !atDumpingExcessTarget(leftTank) || !atDumpingExcessTarget(rightTank));
+        return super.canFunction() && (dumpLeft != GasMode.DUMPING_EXCESS || dumpRight != GasMode.DUMPING_EXCESS || !atDumpingExcessTarget(leftTank) || !atDumpingExcessTarget(rightTank));
     }
 
     @ComputerMethod(nameOverride = "getEnergyUsage", methodDescription = ComputerConstants.DESCRIPTION_GET_ENERGY_USAGE)
@@ -316,7 +317,7 @@ public class TileEntityLargeElectrolyticSeparator extends TileEntityRecipeLargeM
                 .setCanHolderFunction(this::canFunction)
                 .setActive(this::setActive)
                 .setEnergyRequirements(energyContainer::getEnergyPerTick, energyContainer)
-                .setBaselineMaxOperations(() -> baselineMaxOperations)
+                .setBaselineMaxOperations(() -> baseOperations * baselineMaxOperations)
                 .setOnFinish(this::markForSave);
     }
 
@@ -324,7 +325,9 @@ public class TileEntityLargeElectrolyticSeparator extends TileEntityRecipeLargeM
     public void recalculateUpgrades(Upgrade upgrade) {
         super.recalculateUpgrades(upgrade);
         if (upgrade == Upgrade.SPEED) {
-            double speed = Math.pow(2, upgradeComponent.getUpgrades(Upgrade.SPEED));
+            int upgradeCount = upgradeComponent.getUpgrades(Upgrade.SPEED);
+            double speed = Math.pow(2, upgradeCount);
+            baseOperations = 4 * (upgradeCount > 0 ? upgradeCount : upgradeCount + 1);
             baselineMaxOperations = (int) speed;
             dumpRate = (long) (BASE_DUMP_RATE * speed);
         }
@@ -351,8 +354,8 @@ public class TileEntityLargeElectrolyticSeparator extends TileEntityRecipeLargeM
     @Override
     public void readSustainedData(HolderLookup.Provider provider, @NotNull CompoundTag dataMap) {
         super.readSustainedData(provider, dataMap);
-        NBTUtils.setEnumIfPresent(dataMap, SerializationConstants.DUMP_LEFT, TileEntityChemicalTank.GasMode.BY_ID, mode -> dumpLeft = mode);
-        NBTUtils.setEnumIfPresent(dataMap, SerializationConstants.DUMP_RIGHT, TileEntityChemicalTank.GasMode.BY_ID, mode -> dumpRight = mode);
+        NBTUtils.setEnumIfPresent(dataMap, SerializationConstants.DUMP_LEFT, GasMode.BY_ID, mode -> dumpLeft = mode);
+        NBTUtils.setEnumIfPresent(dataMap, SerializationConstants.DUMP_RIGHT, GasMode.BY_ID, mode -> dumpRight = mode);
     }
 
     @Override
@@ -382,8 +385,8 @@ public class TileEntityLargeElectrolyticSeparator extends TileEntityRecipeLargeM
     @Override
     public void addContainerTrackers(MekanismContainer container) {
         super.addContainerTrackers(container);
-        container.track(SyncableEnum.create(TileEntityChemicalTank.GasMode.BY_ID, TileEntityChemicalTank.GasMode.IDLE, () -> dumpLeft, value -> dumpLeft = value));
-        container.track(SyncableEnum.create(TileEntityChemicalTank.GasMode.BY_ID, TileEntityChemicalTank.GasMode.IDLE, () -> dumpRight, value -> dumpRight = value));
+        container.track(SyncableEnum.create(GasMode.BY_ID, GasMode.IDLE, () -> dumpLeft, value -> dumpLeft = value));
+        container.track(SyncableEnum.create(GasMode.BY_ID, GasMode.IDLE, () -> dumpRight, value -> dumpRight = value));
         container.track(SyncableLong.create(this::getEnergyUsed, value -> clientEnergyUsed = value));
     }
 
@@ -406,35 +409,23 @@ public class TileEntityLargeElectrolyticSeparator extends TileEntityRecipeLargeM
     // 以流体端口作为比较器信号口
     @Override
     public int getBoundingComparatorSignal(Vec3i offset) {
-        // Return the comparator signal if it is one of the horizontal ports
         Direction direction = getDirection();
-        if (direction == Direction.EAST) {
-            if (offset.equals(new Vec3i(-1, 0, 1))) {
-                return getCurrentRedstoneLevel();
+        Direction back = getOppositeDirection();
+        Direction left = getLeftSide();
+        Direction right = left.getOpposite();
+        if (offset.equals(new Vec3i(back.getStepX(), 0, back.getStepZ()))) {
+            return getCurrentRedstoneLevel();
+        }
+        switch (direction) {
+            case NORTH, SOUTH -> {
+                if (offset.equals(new Vec3i(left.getStepX(), 0, back.getStepZ())) || offset.equals(new Vec3i(right.getStepX(), 0, back.getStepZ()))) {
+                    return getCurrentRedstoneLevel();
+                }
             }
-            if (offset.equals(new Vec3i(-1, 0, -1))) {
-                return getCurrentRedstoneLevel();
-            }
-        } else if (direction == Direction.SOUTH) {
-            if (offset.equals(new Vec3i(1, 0, -1))) {
-                return getCurrentRedstoneLevel();
-            }
-            if (offset.equals(new Vec3i(-1, 0, -1))) {
-                return getCurrentRedstoneLevel();
-            }
-        } else if (direction == Direction.WEST) {
-            if (offset.equals(new Vec3i(1, 0, -1))) {
-                return getCurrentRedstoneLevel();
-            }
-            if (offset.equals(new Vec3i(1, 0, 1))) {
-                return getCurrentRedstoneLevel();
-            }
-        } else if (direction == Direction.NORTH) {
-            if (offset.equals(new Vec3i(1, 0, 1))) {
-                return getCurrentRedstoneLevel();
-            }
-            if (offset.equals(new Vec3i(-1, 0, 1))) {
-                return getCurrentRedstoneLevel();
+            case WEST, EAST -> {
+                if (offset.equals(new Vec3i(back.getStepX(), 0, left.getStepZ())) || offset.equals(new Vec3i(back.getStepX(), 0, right.getStepZ()))) {
+                    return getCurrentRedstoneLevel();
+                }
             }
         }
         return 0;
@@ -469,36 +460,25 @@ public class TileEntityLargeElectrolyticSeparator extends TileEntityRecipeLargeM
     }
 
     private boolean notChemicalPort(Direction side, Vec3i offset) {
-        Direction direction = getDirection();
+        Direction front = getDirection();
         Direction left = getLeftSide();
         Direction right = left.getOpposite();
-        if (direction == Direction.EAST) {
-            if (offset.equals(new Vec3i(1, 0, 1))) {
-                return side != left;
+        switch (front) {
+            case NORTH, SOUTH -> {
+                if (offset.equals(new Vec3i(left.getStepX(), 0, front.getStepZ()))) {
+                    return side != left;
+                }
+                if (offset.equals(new Vec3i(right.getStepX(), 0, front.getStepZ()))) {
+                    return side != right;
+                }
             }
-            if (offset.equals(new Vec3i(1, 0, -1))) {
-                return side != right;
-            }
-        } else if (direction == Direction.SOUTH) {
-            if (offset.equals(new Vec3i(-1, 0, 1))) {
-                return side != left;
-            }
-            if (offset.equals(new Vec3i(1, 0, 1))) {
-                return side != right;
-            }
-        } else if (direction == Direction.WEST) {
-            if (offset.equals(new Vec3i(-1, 0, 1))) {
-                return side != right;
-            }
-            if (offset.equals(new Vec3i(-1, 0, -1))) {
-                return side != left;
-            }
-        } else if (direction == Direction.NORTH) {
-            if (offset.equals(new Vec3i(-1, 0, -1))) {
-                return side != right;
-            }
-            if (offset.equals(new Vec3i(1, 0, -1))) {
-                return side != left;
+            case WEST, EAST -> {
+                if (offset.equals(new Vec3i(front.getStepX(), 0, left.getStepZ()))) {
+                    return side != left;
+                }
+                if (offset.equals(new Vec3i(front.getStepX(), 0, right.getStepZ()))) {
+                    return side != right;
+                }
             }
         }
         return true;
@@ -509,33 +489,22 @@ public class TileEntityLargeElectrolyticSeparator extends TileEntityRecipeLargeM
         Direction back = getOppositeDirection();
         Direction left = getLeftSide();
         Direction right = left.getOpposite();
-        if (direction == Direction.EAST) {
-            if (offset.equals(new Vec3i(-1, 0, 1))) {
-                return side != left && side != back;
+        switch (direction) {
+            case NORTH, SOUTH -> {
+                if (offset.equals(new Vec3i(left.getStepX(), 0, back.getStepZ()))) {
+                    return side != back && side != left;
+                }
+                if (offset.equals(new Vec3i(right.getStepX(), 0, back.getStepZ()))) {
+                    return side != back && side != right;
+                }
             }
-            if (offset.equals(new Vec3i(-1, 0, -1))) {
-                return side != right && side != back;
-            }
-        } else if (direction == Direction.SOUTH) {
-            if (offset.equals(new Vec3i(1, 0, -1))) {
-                return side != right && side != back;
-            }
-            if (offset.equals(new Vec3i(-1, 0, -1))) {
-                return side != left && side != back;
-            }
-        } else if (direction == Direction.WEST) {
-            if (offset.equals(new Vec3i(1, 0, -1))) {
-                return side != left && side != back;
-            }
-            if (offset.equals(new Vec3i(1, 0, 1))) {
-                return side != right && side != back;
-            }
-        } else if (direction == Direction.NORTH) {
-            if (offset.equals(new Vec3i(1, 0, 1))) {
-                return side != left && side != back;
-            }
-            if (offset.equals(new Vec3i(-1, 0, 1))) {
-                return side != right && side != back;
+            case WEST, EAST -> {
+                if (offset.equals(new Vec3i(back.getStepX(), 0, left.getStepZ()))) {
+                    return side != back && side != left;
+                }
+                if (offset.equals(new Vec3i(back.getStepX(), 0, right.getStepZ()))) {
+                    return side != back && side != right;
+                }
             }
         }
         return true;
@@ -556,7 +525,7 @@ public class TileEntityLargeElectrolyticSeparator extends TileEntityRecipeLargeM
 
     // Methods relating to IComputerTile
     @ComputerMethod(requiresPublicSecurity = true)
-    void setLeftOutputDumpingMode(TileEntityChemicalTank.GasMode mode) throws ComputerException {
+    void setLeftOutputDumpingMode(GasMode mode) throws ComputerException {
         validateSecurityIsPublic();
         if (dumpLeft != mode) {
             dumpLeft = mode;
@@ -578,7 +547,7 @@ public class TileEntityLargeElectrolyticSeparator extends TileEntityRecipeLargeM
     }
 
     @ComputerMethod(requiresPublicSecurity = true)
-    void setRightOutputDumpingMode(TileEntityChemicalTank.GasMode mode) throws ComputerException {
+    void setRightOutputDumpingMode(GasMode mode) throws ComputerException {
         validateSecurityIsPublic();
         if (dumpRight != mode) {
             dumpRight = mode;

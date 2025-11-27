@@ -1,5 +1,6 @@
 package com.jerry.meklm.common.tile.machine;
 
+import com.jerry.meklm.common.capabilities.holder.chemical.CanAdjustChemicalTankHelper;
 import com.jerry.meklm.common.registries.LargeMachineBlocks;
 import com.jerry.meklm.common.tile.prefab.TileEntityRecipeLargeMachine;
 
@@ -7,6 +8,7 @@ import com.jerry.mekmm.common.util.WorldUtil;
 
 import mekanism.api.IContentsListener;
 import mekanism.api.RelativeSide;
+import mekanism.api.Upgrade;
 import mekanism.api.chemical.BasicChemicalTank;
 import mekanism.api.chemical.ChemicalStack;
 import mekanism.api.chemical.IChemicalTank;
@@ -69,7 +71,7 @@ public class TileEntityLargeSolarNeutronActivator extends TileEntityRecipeLargeM
             RecipeError.NOT_ENOUGH_INPUT,
             RecipeError.NOT_ENOUGH_OUTPUT_SPACE,
             RecipeError.INPUT_DOESNT_PRODUCE_OUTPUT);
-    public static final long MAX_GAS = 10L * FluidType.BUCKET_VOLUME;
+    public static final long MAX_GAS = 10L * FluidType.BUCKET_VOLUME * FluidType.BUCKET_VOLUME;
     protected LargeSNA solarCheck;
     private final LargeSNA[] solarChecks = new LargeSNA[9];
 
@@ -84,11 +86,10 @@ public class TileEntityLargeSolarNeutronActivator extends TileEntityRecipeLargeM
                             docPlaceholder = "output tank")
     public IChemicalTank outputTank;
 
-    @SyntheticComputerMethod(getter = "getPeakProductionRate")
-    private float peakProductionRate;
     @SyntheticComputerMethod(getter = "getProductionRate")
     private float productionRate;
     private boolean settingsChecked;
+    private int baselineMaxOperations = 1;
     private int numPowering;
     private byte seeSunCount = 0;
 
@@ -116,21 +117,22 @@ public class TileEntityLargeSolarNeutronActivator extends TileEntityRecipeLargeM
     @NotNull
     @Override
     public IChemicalTankHolder getInitialChemicalTanks(IContentsListener listener, IContentsListener recipeCacheListener, IContentsListener recipeCacheUnpauseListener) {
-        ChemicalTankHelper builder = ChemicalTankHelper.forSideWithConfig(this);
+        // TODO:计划换成左侧专职输入右侧专职输出
+        CanAdjustChemicalTankHelper builder = CanAdjustChemicalTankHelper.forSide(facingSupplier, side -> side == RelativeSide.RIGHT || side == RelativeSide.LEFT, side -> side == RelativeSide.BACK);
         // Allow extracting out of the input gas tank if it isn't external OR the output tank is empty AND the input is
         // radioactive
         builder.addTank(inputTank = BasicChemicalTank.createModern(MAX_GAS, ChemicalTankHelper.radioactiveInputTankPredicate(() -> outputTank),
-                ConstantPredicates.alwaysTrueBi(), this::containsRecipe, ChemicalAttributeValidator.ALWAYS_ALLOW, recipeCacheListener));
-        builder.addTank(outputTank = BasicChemicalTank.output(MAX_GAS, recipeCacheUnpauseListener));
+                ConstantPredicates.alwaysTrueBi(), this::containsRecipe, ChemicalAttributeValidator.ALWAYS_ALLOW, recipeCacheListener), RelativeSide.RIGHT, RelativeSide.LEFT);
+        builder.addTank(outputTank = BasicChemicalTank.output(MAX_GAS, recipeCacheUnpauseListener), RelativeSide.BACK);
         return builder.build();
     }
 
     @NotNull
     @Override
     protected IInventorySlotHolder getInitialInventory(IContentsListener listener, IContentsListener recipeCacheListener, IContentsListener recipeCacheUnpauseListener) {
-        InventorySlotHelper builder = InventorySlotHelper.forSideWithConfig(this);
-        builder.addSlot(inputSlot = ChemicalInventorySlot.fill(inputTank, listener, 5, 56));
-        builder.addSlot(outputSlot = ChemicalInventorySlot.drain(outputTank, listener, 155, 56));
+        InventorySlotHelper builder = InventorySlotHelper.forSide(facingSupplier, side -> side == RelativeSide.RIGHT || side == RelativeSide.LEFT, side -> side == RelativeSide.BACK);
+        builder.addSlot(inputSlot = ChemicalInventorySlot.fill(inputTank, listener, 5, 56), RelativeSide.RIGHT, RelativeSide.LEFT);
+        builder.addSlot(outputSlot = ChemicalInventorySlot.drain(outputTank, listener, 155, 56), RelativeSide.BACK);
         inputSlot.setSlotType(ContainerSlotType.INPUT);
         inputSlot.setSlotOverlay(SlotOverlay.MINUS);
         outputSlot.setSlotType(ContainerSlotType.OUTPUT);
@@ -144,7 +146,6 @@ public class TileEntityLargeSolarNeutronActivator extends TileEntityRecipeLargeM
         }
         BlockPos topPos = worldPosition.above(2);
         solarCheck = new LargeSNA(level, topPos);
-        float totalPeak = solarCheck.getPeakMultiplier();
         for (int i = 0; i < solarChecks.length; i++) {
             if (i < 3) {
                 solarChecks[i] = new LargeSNA(level, topPos.offset(-1, 0, i - 1));
@@ -155,9 +156,7 @@ public class TileEntityLargeSolarNeutronActivator extends TileEntityRecipeLargeM
             } else {
                 solarChecks[i] = new LargeSNA(level, topPos.offset(1, 0, i - 6));
             }
-            totalPeak += solarChecks[i].getPeakMultiplier();
         }
-        peakProductionRate = MekanismConfig.general.maxSolarNeutronActivatorRate.get() * (totalPeak / 9);
         settingsChecked = true;
     }
 
@@ -282,7 +281,15 @@ public class TileEntityLargeSolarNeutronActivator extends TileEntityRecipeLargeM
                 .setOnFinish(this::markForSave)
                 // Edge case handling, this should almost always end up being 1
                 .setRequiredTicks(() -> productionRate > 0 && productionRate < 1 ? Mth.ceil(1 / productionRate) : 1)
-                .setBaselineMaxOperations(() -> productionRate > 0 && productionRate < 1 ? 1 : (int) productionRate);
+                .setBaselineMaxOperations(() -> baselineMaxOperations * (productionRate > 0 && productionRate < 1 ? 1 : (int) productionRate));
+    }
+
+    @Override
+    public void recalculateUpgrades(Upgrade upgrade) {
+        super.recalculateUpgrades(upgrade);
+        if (upgrade == Upgrade.SPEED) {
+            baselineMaxOperations = (int) Math.pow(2, upgradeComponent.getUpgrades(Upgrade.SPEED));
+        }
     }
 
     @Override
@@ -314,33 +321,19 @@ public class TileEntityLargeSolarNeutronActivator extends TileEntityRecipeLargeM
     @Override
     public int getBoundingComparatorSignal(Vec3i offset) {
         Direction direction = getDirection();
-        if (direction == Direction.EAST) {
-            if (offset.equals(new Vec3i(-1, 0, 1))) {
-                return getCurrentRedstoneLevel();
+        Direction back = getOppositeDirection();
+        Direction left = getLeftSide();
+        Direction right = left.getOpposite();
+        switch (direction) {
+            case NORTH, SOUTH -> {
+                if (offset.equals(new Vec3i(left.getStepX(), 0, back.getStepZ())) || offset.equals(new Vec3i(right.getStepX(), 0, back.getStepZ()))) {
+                    return getCurrentRedstoneLevel();
+                }
             }
-            if (offset.equals(new Vec3i(-1, 0, -1))) {
-                return getCurrentRedstoneLevel();
-            }
-        } else if (direction == Direction.SOUTH) {
-            if (offset.equals(new Vec3i(1, 0, -1))) {
-                return getCurrentRedstoneLevel();
-            }
-            if (offset.equals(new Vec3i(-1, 0, -1))) {
-                return getCurrentRedstoneLevel();
-            }
-        } else if (direction == Direction.WEST) {
-            if (offset.equals(new Vec3i(1, 0, -1))) {
-                return getCurrentRedstoneLevel();
-            }
-            if (offset.equals(new Vec3i(1, 0, 1))) {
-                return getCurrentRedstoneLevel();
-            }
-        } else if (direction == Direction.NORTH) {
-            if (offset.equals(new Vec3i(1, 0, 1))) {
-                return getCurrentRedstoneLevel();
-            }
-            if (offset.equals(new Vec3i(-1, 0, 1))) {
-                return getCurrentRedstoneLevel();
+            case WEST, EAST -> {
+                if (offset.equals(new Vec3i(back.getStepX(), 0, left.getStepZ())) || offset.equals(new Vec3i(back.getStepX(), 0, right.getStepZ()))) {
+                    return getCurrentRedstoneLevel();
+                }
             }
         }
         return 0;
@@ -371,33 +364,22 @@ public class TileEntityLargeSolarNeutronActivator extends TileEntityRecipeLargeM
         Direction back = getOppositeDirection();
         Direction left = getLeftSide();
         Direction right = left.getOpposite();
-        if (direction == Direction.EAST) {
-            if (offset.equals(new Vec3i(-1, 0, 1))) {
-                return side != left && side != back;
+        switch (direction) {
+            case NORTH, SOUTH -> {
+                if (offset.equals(new Vec3i(left.getStepX(), 0, back.getStepZ()))) {
+                    return side != back && side != left;
+                }
+                if (offset.equals(new Vec3i(right.getStepX(), 0, back.getStepZ()))) {
+                    return side != back && side != right;
+                }
             }
-            if (offset.equals(new Vec3i(-1, 0, -1))) {
-                return side != right && side != back;
-            }
-        } else if (direction == Direction.SOUTH) {
-            if (offset.equals(new Vec3i(1, 0, -1))) {
-                return side != right && side != back;
-            }
-            if (offset.equals(new Vec3i(-1, 0, -1))) {
-                return side != left && side != back;
-            }
-        } else if (direction == Direction.WEST) {
-            if (offset.equals(new Vec3i(1, 0, -1))) {
-                return side != left && side != back;
-            }
-            if (offset.equals(new Vec3i(1, 0, 1))) {
-                return side != right && side != back;
-            }
-        } else if (direction == Direction.NORTH) {
-            if (offset.equals(new Vec3i(1, 0, 1))) {
-                return side != left && side != back;
-            }
-            if (offset.equals(new Vec3i(-1, 0, 1))) {
-                return side != right && side != back;
+            case WEST, EAST -> {
+                if (offset.equals(new Vec3i(back.getStepX(), 0, left.getStepZ()))) {
+                    return side != back && side != left;
+                }
+                if (offset.equals(new Vec3i(back.getStepX(), 0, right.getStepZ()))) {
+                    return side != back && side != right;
+                }
             }
         }
         return true;

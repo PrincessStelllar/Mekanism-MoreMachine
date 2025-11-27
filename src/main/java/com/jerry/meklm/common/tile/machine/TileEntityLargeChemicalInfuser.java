@@ -75,7 +75,7 @@ public class TileEntityLargeChemicalInfuser extends TileEntityRecipeLargeMachine
             RecipeError.NOT_ENOUGH_RIGHT_INPUT,
             RecipeError.NOT_ENOUGH_OUTPUT_SPACE,
             RecipeError.INPUT_DOESNT_PRODUCE_OUTPUT);
-    public static final long MAX_GAS = 10L * FluidType.BUCKET_VOLUME;
+    public static final long MAX_GAS = 5L * FluidType.BUCKET_VOLUME * FluidType.BUCKET_VOLUME;
 
     @WrappingComputerMethod(wrapper = SpecialComputerMethodWrapper.ComputerChemicalTankWrapper.class,
                             methodNames = { "getLeftInput", "getLeftInputCapacity", "getLeftInputNeeded",
@@ -95,6 +95,7 @@ public class TileEntityLargeChemicalInfuser extends TileEntityRecipeLargeMachine
 
     private long clientEnergyUsed = 0L;
     private int baselineMaxOperations = 1;
+    private int baseOperations = 8;
     private int numPowering;
 
     private final IOutputHandler<@NotNull ChemicalStack> outputHandler;
@@ -149,7 +150,7 @@ public class TileEntityLargeChemicalInfuser extends TileEntityRecipeLargeMachine
         CanAdjustChemicalTankHelper builder = CanAdjustChemicalTankHelper.forSide(facingSupplier, side -> side == RelativeSide.LEFT || side == RelativeSide.RIGHT || side == RelativeSide.BACK, side -> side == RelativeSide.FRONT);
         builder.addTank(leftTank = BasicChemicalTank.inputModern(MAX_GAS, gas -> containsRecipe(gas, rightTank.getStack()), this::containsRecipe, recipeCacheListener), RelativeSide.BACK, RelativeSide.LEFT);
         builder.addTank(rightTank = BasicChemicalTank.inputModern(MAX_GAS, gas -> containsRecipe(gas, leftTank.getStack()), this::containsRecipe, recipeCacheListener), RelativeSide.BACK, RelativeSide.RIGHT);
-        builder.addTank(centerTank = BasicChemicalTank.output(MAX_GAS, recipeCacheUnpauseListener), RelativeSide.FRONT);
+        builder.addTank(centerTank = BasicChemicalTank.output(2 * MAX_GAS, recipeCacheUnpauseListener), RelativeSide.FRONT);
         return builder.build();
     }
 
@@ -219,7 +220,7 @@ public class TileEntityLargeChemicalInfuser extends TileEntityRecipeLargeMachine
                 .setCanHolderFunction(this::canFunction)
                 .setActive(this::setActive)
                 .setEnergyRequirements(energyContainer::getEnergyPerTick, energyContainer)
-                .setBaselineMaxOperations(() -> baselineMaxOperations)
+                .setBaselineMaxOperations(() -> baseOperations * baselineMaxOperations)
                 .setOnFinish(this::markForSave);
     }
 
@@ -227,7 +228,9 @@ public class TileEntityLargeChemicalInfuser extends TileEntityRecipeLargeMachine
     public void recalculateUpgrades(Upgrade upgrade) {
         super.recalculateUpgrades(upgrade);
         if (upgrade == Upgrade.SPEED) {
-            baselineMaxOperations = (int) Math.pow(2, upgradeComponent.getUpgrades(Upgrade.SPEED));
+            int upgradeCount = upgradeComponent.getUpgrades(Upgrade.SPEED);
+            baseOperations = 4 * (upgradeCount > 0 ? upgradeCount : upgradeCount + 1);
+            baselineMaxOperations = (int) Math.pow(2, upgradeCount);
         }
     }
 
@@ -257,37 +260,22 @@ public class TileEntityLargeChemicalInfuser extends TileEntityRecipeLargeMachine
     public int getBoundingComparatorSignal(Vec3i offset) {
         // 化学品输入口
         Direction direction = getDirection();
-        if (direction == Direction.EAST) {
-            if (offset.equals(new Vec3i(-1, 0, 1))) {
-                return getCurrentRedstoneLevel();
+        Direction back = getOppositeDirection();
+        Direction left = getLeftSide();
+        Direction right = left.getOpposite();
+        switch (direction) {
+            case NORTH, SOUTH -> {
+                if (offset.equals(new Vec3i(left.getStepX(), 0, back.getStepZ())) || offset.equals(new Vec3i(right.getStepX(), 0, back.getStepZ()))) {
+                    return getCurrentRedstoneLevel();
+                }
             }
-            if (offset.equals(new Vec3i(-1, 0, -1))) {
-                return getCurrentRedstoneLevel();
-            }
-        } else if (direction == Direction.SOUTH) {
-            if (offset.equals(new Vec3i(1, 0, -1))) {
-                return getCurrentRedstoneLevel();
-            }
-            if (offset.equals(new Vec3i(-1, 0, -1))) {
-                return getCurrentRedstoneLevel();
-            }
-        } else if (direction == Direction.WEST) {
-            if (offset.equals(new Vec3i(1, 0, -1))) {
-                return getCurrentRedstoneLevel();
-            }
-            if (offset.equals(new Vec3i(1, 0, 1))) {
-                return getCurrentRedstoneLevel();
-            }
-        } else if (direction == Direction.NORTH) {
-            if (offset.equals(new Vec3i(1, 0, 1))) {
-                return getCurrentRedstoneLevel();
-            }
-            if (offset.equals(new Vec3i(-1, 0, 1))) {
-                return getCurrentRedstoneLevel();
+            case WEST, EAST -> {
+                if (offset.equals(new Vec3i(back.getStepX(), 0, left.getStepZ())) || offset.equals(new Vec3i(back.getStepX(), 0, right.getStepZ()))) {
+                    return getCurrentRedstoneLevel();
+                }
             }
         }
         // 能量输入口
-        Direction back = getOppositeDirection();
         if (offset.equals(new Vec3i(back.getStepX(), 0, back.getStepZ()))) {
             return getCurrentRedstoneLevel();
         }
@@ -319,50 +307,32 @@ public class TileEntityLargeChemicalInfuser extends TileEntityRecipeLargeMachine
     }
 
     private boolean notChemicalPort(Direction side, Vec3i offset) {
-        Direction direction = getDirection();
+        Direction front = getDirection();
         Direction back = getOppositeDirection();
-        Direction front = back.getOpposite();
         Direction left = getLeftSide();
         Direction right = left.getOpposite();
-        if (direction == Direction.EAST) {
-            if (offset.equals(new Vec3i(1, 0, 1)) || offset.equals(new Vec3i(1, 0, -1))) {
-                return side != front;
+        switch (front) {
+            case NORTH, SOUTH -> {
+                if (offset.equals(new Vec3i(left.getStepX(), 0, front.getStepZ())) || offset.equals(new Vec3i(right.getStepX(), 0, front.getStepZ()))) {
+                    return side != front;
+                }
+                if (offset.equals(new Vec3i(left.getStepX(), 0, back.getStepZ()))) {
+                    return side != back && side != left;
+                }
+                if (offset.equals(new Vec3i(right.getStepX(), 0, back.getStepZ()))) {
+                    return side != back && side != right;
+                }
             }
-            if (offset.equals(new Vec3i(-1, 0, 1))) {
-                return side != left && side != back;
-            }
-            if (offset.equals(new Vec3i(-1, 0, -1))) {
-                return side != right && side != back;
-            }
-        } else if (direction == Direction.SOUTH) {
-            if (offset.equals(new Vec3i(-1, 0, 1)) || offset.equals(new Vec3i(1, 0, 1))) {
-                return side != front;
-            }
-            if (offset.equals(new Vec3i(1, 0, -1))) {
-                return side != right && side != back;
-            }
-            if (offset.equals(new Vec3i(-1, 0, -1))) {
-                return side != left && side != back;
-            }
-        } else if (direction == Direction.WEST) {
-            if (offset.equals(new Vec3i(-1, 0, 1)) || offset.equals(new Vec3i(-1, 0, -1))) {
-                return side != right;
-            }
-            if (offset.equals(new Vec3i(1, 0, -1))) {
-                return side != left && side != back;
-            }
-            if (offset.equals(new Vec3i(1, 0, 1))) {
-                return side != right && side != back;
-            }
-        } else if (direction == Direction.NORTH) {
-            if (offset.equals(new Vec3i(-1, 0, -1)) || offset.equals(new Vec3i(1, 0, -1))) {
-                return side != front;
-            }
-            if (offset.equals(new Vec3i(1, 0, 1))) {
-                return side != left && side != back;
-            }
-            if (offset.equals(new Vec3i(-1, 0, 1))) {
-                return side != right && side != back;
+            case WEST, EAST -> {
+                if (offset.equals(new Vec3i(front.getStepX(), 0, left.getStepZ())) || offset.equals(new Vec3i(front.getStepX(), 0, right.getStepZ()))) {
+                    return side != front;
+                }
+                if (offset.equals(new Vec3i(back.getStepX(), 0, left.getStepZ()))) {
+                    return side != back && side != left;
+                }
+                if (offset.equals(new Vec3i(back.getStepX(), 0, right.getStepZ()))) {
+                    return side != back && side != right;
+                }
             }
         }
         return true;

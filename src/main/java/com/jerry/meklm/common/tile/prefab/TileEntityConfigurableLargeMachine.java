@@ -1,5 +1,7 @@
 package com.jerry.meklm.common.tile.prefab;
 
+import com.jerry.meklm.common.tile.INeedConfig;
+
 import mekanism.common.block.attribute.Attribute;
 import mekanism.common.block.attribute.AttributeSideConfig;
 import mekanism.common.tile.base.TileEntityMekanism;
@@ -15,7 +17,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
-public abstract class TileEntityConfigurableLargeMachine extends TileEntityMekanism implements ISideConfiguration {
+public abstract class TileEntityConfigurableLargeMachine extends TileEntityMekanism implements ISideConfiguration, INeedConfig {
 
     public TileComponentEjector ejectorComponent;
     public final TileComponentConfig configComponent;// does not tick!
@@ -33,6 +35,12 @@ public abstract class TileEntityConfigurableLargeMachine extends TileEntityMekan
     @Override
     public final TileComponentEjector getEjector() {
         return ejectorComponent;
+    }
+
+    // TODO:给mek提交pr后，如果合并则此项可以删除
+    @Override
+    public boolean needConfig() {
+        return false;
     }
 
     @Override

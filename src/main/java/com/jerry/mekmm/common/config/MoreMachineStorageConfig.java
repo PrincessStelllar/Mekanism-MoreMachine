@@ -21,7 +21,11 @@ public class MoreMachineStorageConfig extends BaseMekanismConfig {
     public final CachedLongValue ambientGasCollector;
     public final CachedLongValue wirelessChargingStation;
     public final CachedLongValue wirelessTransmitterStation;
+
     public final CachedLongValue largeRotaryCondensentrator;
+    public final CachedLongValue largeChemicalInfuser;
+    public final CachedLongValue largeElectrolyticSeparator;
+    public final CachedLongValue largeHeatGenerator;
 
     MoreMachineStorageConfig() {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -43,7 +47,10 @@ public class MoreMachineStorageConfig extends BaseMekanismConfig {
         builder.pop();
 
         // Large Machine
-        largeRotaryCondensentrator = CachedLongValue.definedMin(this, builder, MoreMachineConfigTranslations.ENERGY_STORAGE_LARGE_ROTARY_CONDENSENTRATOR, "largeRotaryCondensentrator", 500_000L, 1);
+        largeRotaryCondensentrator = CachedLongValue.definedMin(this, builder, MoreMachineConfigTranslations.ENERGY_STORAGE_LARGE_ROTARY_CONDENSENTRATOR, "largeRotaryCondensentrator", 4_096_000L, 1);
+        largeChemicalInfuser = CachedLongValue.definedMin(this, builder, MoreMachineConfigTranslations.ENERGY_STORAGE_LARGE_CHEMICAL_INFUSER, "largeChemicalInfuser", 4_096_000L, 1);
+        largeElectrolyticSeparator = CachedLongValue.definedMin(this, builder, MoreMachineConfigTranslations.ENERGY_STORAGE_LARGE_ELECTROLYTIC_SEPARATOR, "largeElectrolyticSeparator", 4_096_000L, 1);
+        largeHeatGenerator = CachedLongValue.definedMin(this, builder, MoreMachineConfigTranslations.ENERGY_STORAGE_LARGE_HEAT_GENERATOR, "largeHeatGenerator", 1_024_000_000L, 1);
 
         configSpec = builder.build();
     }

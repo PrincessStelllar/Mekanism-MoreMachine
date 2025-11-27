@@ -3,6 +3,7 @@ package com.jerry.meklm.common.tile.prefab;
 import com.jerry.meklm.api.tier.ILargeChemicalTankTier;
 import com.jerry.meklm.common.capabilities.holder.chemical.CanAdjustChemicalTankHelper;
 import com.jerry.meklm.common.capabilities.holder.chemical.LargeChemicalTankChemicalTank;
+import com.jerry.meklm.common.tile.INeedConfig;
 
 import mekanism.api.Action;
 import mekanism.api.IContentsListener;
@@ -30,6 +31,7 @@ import mekanism.common.registries.MekanismDataComponents;
 import mekanism.common.tile.TileEntityChemicalTank.GasMode;
 import mekanism.common.tile.component.ITileComponent;
 import mekanism.common.tile.component.TileComponentEjector;
+import mekanism.common.tile.interfaces.IBoundingBlock;
 import mekanism.common.tile.interfaces.IHasGasMode;
 import mekanism.common.tile.prefab.TileEntityConfigurableMachine;
 import mekanism.common.upgrade.ChemicalTankUpgradeData;
@@ -50,10 +52,11 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class TileEntityLargeChemicalTank<TIER extends ILargeChemicalTankTier> extends TileEntityConfigurableMachine implements IHasGasMode {
+public class TileEntityLargeChemicalTank<TIER extends ILargeChemicalTankTier> extends TileEntityConfigurableMachine implements IHasGasMode, IBoundingBlock, INeedConfig {
 
     @SyntheticComputerMethod(getter = "getDumpingMode", getterDescription = "Get the current Dumping configuration")
     public GasMode dumping = GasMode.IDLE;
+    protected int numPowering;
 
     @Getter
     private IChemicalTank chemicalTank;
@@ -67,18 +70,23 @@ public class TileEntityLargeChemicalTank<TIER extends ILargeChemicalTankTier> ex
 
     public TileEntityLargeChemicalTank(Holder<Block> blockProvider, BlockPos pos, BlockState state) {
         super(blockProvider, pos, state);
-        configComponent.setupIOConfig(TransmissionType.ITEM, drainSlot, fillSlot, RelativeSide.FRONT, true).setCanEject(false);
-        configComponent.setupIOConfig(TransmissionType.CHEMICAL, getChemicalTank(), RelativeSide.FRONT);
+        configComponent.setupIOConfig(TransmissionType.ITEM, drainSlot, fillSlot, RelativeSide.BACK, true).setCanEject(false);
+        configComponent.setupIOConfig(TransmissionType.CHEMICAL, getChemicalTank(), RelativeSide.TOP);
         ejectorComponent = new TileComponentEjector(this, () -> tier.getOutput());
         ejectorComponent.setOutputData(configComponent, TransmissionType.CHEMICAL)
                 .setCanEject(type -> canFunction() && dumping != GasMode.DUMPING);
     }
 
     @Override
+    public boolean needConfig() {
+        return false;
+    }
+
+    @Override
     public @Nullable IChemicalTankHolder getInitialChemicalTanks(IContentsListener listener) {
         // 化学品下进上出
         CanAdjustChemicalTankHelper builder = CanAdjustChemicalTankHelper.forSide(facingSupplier, side -> side == RelativeSide.BACK, side -> side == RelativeSide.TOP);
-        builder.addTank(chemicalTank = LargeChemicalTankChemicalTank.create(tier, listener));
+        builder.addTank(chemicalTank = LargeChemicalTankChemicalTank.create(tier, listener), RelativeSide.TOP, RelativeSide.BACK);
         return builder.build();
     }
 
@@ -87,8 +95,8 @@ public class TileEntityLargeChemicalTank<TIER extends ILargeChemicalTankTier> ex
     protected IInventorySlotHolder getInitialInventory(IContentsListener listener) {
         // 物品上进下出
         InventorySlotHelper builder = InventorySlotHelper.forSide(facingSupplier, side -> side == RelativeSide.TOP, side -> side == RelativeSide.BACK);
-        builder.addSlot(drainSlot = ChemicalInventorySlot.drain(chemicalTank, listener, 16, 16));
-        builder.addSlot(fillSlot = ChemicalInventorySlot.fill(chemicalTank, listener, 16, 48));
+        builder.addSlot(drainSlot = ChemicalInventorySlot.drain(chemicalTank, listener, 16, 16), RelativeSide.TOP, RelativeSide.BACK);
+        builder.addSlot(fillSlot = ChemicalInventorySlot.fill(chemicalTank, listener, 16, 48), RelativeSide.TOP, RelativeSide.BACK);
         drainSlot.setSlotType(ContainerSlotType.OUTPUT);
         drainSlot.setSlotOverlay(SlotOverlay.PLUS);
         fillSlot.setSlotType(ContainerSlotType.INPUT);
@@ -195,6 +203,22 @@ public class TileEntityLargeChemicalTank<TIER extends ILargeChemicalTankTier> ex
     public void addContainerTrackers(MekanismContainer container) {
         super.addContainerTrackers(container);
         container.track(SyncableEnum.create(GasMode.BY_ID, GasMode.IDLE, () -> dumping, value -> dumping = value));
+    }
+
+    @Override
+    public boolean isPowered() {
+        return redstone || numPowering > 0;
+    }
+
+    @Override
+    public void onBoundingBlockPowerChange(BlockPos boundingPos, int oldLevel, int newLevel) {
+        if (oldLevel > 0) {
+            if (newLevel == 0) {
+                numPowering--;
+            }
+        } else if (newLevel > 0) {
+            numPowering++;
+        }
     }
 
     // Methods relating to IComputerTile

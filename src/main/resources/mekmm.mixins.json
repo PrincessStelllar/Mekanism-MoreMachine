@@ -5,6 +5,8 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "mekmm.refmap.json",
   "mixins": [
+    "MixinItemConfigurator",
+    "client.render.MixinRenderTickHandler",
     "recipe.MixinMekanismRecipeType",
     "recipe.lookup.monitor.MixinRecipeCacheLookupMonitor"
   ],

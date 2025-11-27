@@ -40,6 +40,9 @@ public enum MoreMachineConfigTranslations implements IConfigTranslation {
     ENERGY_STORAGE_FLUID_REPLICATOR(TranslationPreset.ENERGY_STORAGE, "Fluid Replicator"),
     ENERGY_STORAGE_CHEMICAL_REPLICATOR(TranslationPreset.ENERGY_STORAGE, "Chemical Replicator"),
     ENERGY_STORAGE_LARGE_ROTARY_CONDENSENTRATOR(TranslationPreset.ENERGY_STORAGE, "Large Rotary Condensentrator"),
+    ENERGY_STORAGE_LARGE_CHEMICAL_INFUSER(TranslationPreset.ENERGY_STORAGE, "Large Chemical Infuser"),
+    ENERGY_STORAGE_LARGE_ELECTROLYTIC_SEPARATOR(TranslationPreset.ENERGY_STORAGE, "Large Electrolytic Separator"),
+    ENERGY_STORAGE_LARGE_HEAT_GENERATOR(TranslationPreset.ENERGY_STORAGE, "Large Heat Generator"),
 
     // Usage Config
     ENERGY_USAGE_RECYCLER(TranslationPreset.ENERGY_USAGE, "Recycler"),
@@ -54,6 +57,7 @@ public enum MoreMachineConfigTranslations implements IConfigTranslation {
     ENERGY_USAGE_FLUID_REPLICATOR(TranslationPreset.ENERGY_USAGE, "Fluid Replicator"),
     ENERGY_USAGE_CHEMICAL_REPLICATOR(TranslationPreset.ENERGY_USAGE, "Chemical Replicator"),
     ENERGY_USAGE_LARGE_ROTARY_CONDENSENTRATOR(TranslationPreset.ENERGY_USAGE, "Large Rotary Condensentrator"),
+    ENERGY_USAGE_LARGE_CHEMICAL_INFUSER(TranslationPreset.ENERGY_USAGE, "Large Chemical Infuser"),
 
     // General Config
     GAS_COLLECT_AMOUNT("general.collect.amount", "Gas Collect Amount", "mB of Unstable Dimensional Gas collected by the Ambient Gas Collector."),

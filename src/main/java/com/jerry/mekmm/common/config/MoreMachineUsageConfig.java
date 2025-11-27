@@ -20,6 +20,7 @@ public class MoreMachineUsageConfig extends BaseMekanismConfig {
     public final CachedLongValue chemicalReplicator;
     public final CachedLongValue ambientGasCollector;
     public final CachedLongValue largeRotaryCondensentrator;
+    public final CachedLongValue largeChemicalInfuser;
 
     MoreMachineUsageConfig() {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -38,6 +39,7 @@ public class MoreMachineUsageConfig extends BaseMekanismConfig {
         builder.pop();
 
         largeRotaryCondensentrator = CachedLongValue.definePositive(this, builder, MoreMachineConfigTranslations.ENERGY_USAGE_LARGE_ROTARY_CONDENSENTRATOR, "largeRotaryCondensentrator", 50L);
+        largeChemicalInfuser = CachedLongValue.definePositive(this, builder, MoreMachineConfigTranslations.ENERGY_USAGE_LARGE_CHEMICAL_INFUSER, "largeChemicalInfuser", 100L);
 
         configSpec = builder.build();
     }
