@@ -20,7 +20,6 @@ import mekanism.api.Upgrade;
 import mekanism.common.block.attribute.*;
 import mekanism.common.block.attribute.AttributeHasBounding.HandleBoundingBlock;
 import mekanism.common.block.attribute.AttributeHasBounding.TriBooleanFunction;
-import mekanism.common.content.blocktype.BlockShapes;
 import mekanism.common.content.blocktype.BlockTypeTile;
 import mekanism.common.content.blocktype.Machine;
 import mekanism.common.content.blocktype.Machine.MachineBuilder;
@@ -83,7 +82,6 @@ public class MoreMachineBlockTypes {
             .withSound(MekanismSounds.OSMIUM_COMPRESSOR)
             .withEnergyConfig(MoreMachineConfig.usage.cnc_lathe, MoreMachineConfig.storage.cnc_lathe)
             .with(AttributeSideConfig.ELECTRIC_MACHINE)
-            .withCustomShape(MoreMachineBlockShapes.CNC_LATHE)
             .withComputerSupport("cnc_lathe")
             .build();
 
@@ -104,6 +102,7 @@ public class MoreMachineBlockTypes {
             .withEnergyConfig(MoreMachineConfig.usage.itemReplicator, MoreMachineConfig.storage.itemReplicator)
             .withSound(MekanismSounds.PURIFICATION_CHAMBER)
             .with(AttributeSideConfig.ADVANCED_ELECTRIC_MACHINE)
+            .withCustomShape(MoreMachineBlockShapes.REPLICATOR)
             .withComputerSupport("itemReplicator")
             .build();
 
@@ -113,6 +112,7 @@ public class MoreMachineBlockTypes {
             .withEnergyConfig(MoreMachineConfig.usage.fluidReplicator, MoreMachineConfig.storage.fluidReplicator)
             .withSound(MekanismSounds.PURIFICATION_CHAMBER)
             .withSideConfig(TransmissionType.FLUID, TransmissionType.CHEMICAL, TransmissionType.ITEM, TransmissionType.ENERGY)
+            .withCustomShape(MoreMachineBlockShapes.REPLICATOR)
             .withComputerSupport("fluidReplicator")
             .build();
 
@@ -122,6 +122,7 @@ public class MoreMachineBlockTypes {
             .withEnergyConfig(MoreMachineConfig.usage.chemicalReplicator, MoreMachineConfig.storage.chemicalReplicator)
             .withSound(MekanismSounds.PURIFICATION_CHAMBER)
             .withSideConfig(TransmissionType.CHEMICAL, TransmissionType.ITEM, TransmissionType.ENERGY)
+            .withCustomShape(MoreMachineBlockShapes.REPLICATOR)
             .withComputerSupport("chemicalReplicator")
             .build();
 
@@ -139,7 +140,7 @@ public class MoreMachineBlockTypes {
             .withGui(() -> MoreMachineContainerTypes.AMBIENT_GAS_COLLECTOR)
             .withEnergyConfig(MoreMachineConfig.usage.ambientGasCollector, MoreMachineConfig.storage.ambientGasCollector)
             .withSupportedUpgrades(Upgrade.SPEED, Upgrade.ENERGY)
-            .withCustomShape(BlockShapes.ELECTRIC_PUMP)
+            .withCustomShape(MoreMachineBlockShapes.AMBIENT_GAS_COLLECTOR)
             .withComputerSupport("ambientGasCollector")
             .replace(Attributes.ACTIVE)
             .build();
