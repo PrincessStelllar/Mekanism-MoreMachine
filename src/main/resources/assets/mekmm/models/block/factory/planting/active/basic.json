@@ -7,7 +7,7 @@
   },
   "children": {
     "base": {
-      "parent": "mekmm:block/factory/planting/base"
+      "parent": "mekmm:block/factory/planting/base_active"
     },
     "led": {
       "render_type": "cutout",

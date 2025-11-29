@@ -36,6 +36,7 @@ public class MoreMachineBlockShapes {
                 box(0, 4, 4, 0, 12, 12),
                 box(16, 4, 4, 16, 12, 12),
                 box(4, 32, 4, 12, 32, 12),
+                box(6, 26, 6, 10, 28, 10),
                 box(4, 4, 15, 12, 12, 16),
                 box(0, 4, 4, 1, 12, 12),
                 box(15, 4, 4, 16, 12, 12),
@@ -60,11 +61,10 @@ public class MoreMachineBlockShapes {
                 box(1, 16, 12, 4, 28, 15),
                 box(12, 16, 12, 15, 28, 15),
                 box(1, 28, 1, 15, 31, 15),
-                box(6, 26, 6, 10, 28, 10),
-                box(4, 16, 2, 12, 28, 2),
-                box(2, 16, 4, 2, 28, 12),
-                box(4, 16, 14, 12, 28, 14),
-                box(14, 16, 4, 14, 28, 12)), PLANTING_STATION);
+                box(4, 16, 2, 12, 28, 3),
+                box(2, 16, 4, 3, 28, 12),
+                box(4, 16, 13, 12, 28, 14),
+                box(13, 16, 4, 14, 28, 12)), PLANTING_STATION);
 
         VoxelShapeUtils.setShape(VoxelShapeUtils.combine(
                 box(4, 4, 16, 12, 12, 16),
@@ -133,10 +133,10 @@ public class MoreMachineBlockShapes {
                 box(12, 16, 12, 16, 27, 16),
                 box(4, 31, 4, 12, 32, 12),
                 box(0, 27, 0, 16, 31, 16),
-                box(4, 16, 2, 12, 27, 2),
-                box(2, 16, 4, 2, 27, 12),
-                box(4, 16, 14, 12, 27, 14),
-                box(14, 16, 4, 14, 27, 12)), PLANTING_FACTORY);
+                box(4, 16, 2, 12, 27, 3),
+                box(2, 16, 4, 3, 27, 12),
+                box(4, 16, 13, 12, 27, 14),
+                box(13, 16, 4, 14, 27, 12)), PLANTING_FACTORY);
 
         VoxelShapeUtils.setShape(VoxelShapeUtils.combine(
                 box(4, 4, 16, 12, 12, 16),

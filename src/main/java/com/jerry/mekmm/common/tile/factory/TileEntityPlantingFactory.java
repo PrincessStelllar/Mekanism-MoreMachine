@@ -11,6 +11,7 @@ import com.jerry.mekmm.common.tile.machine.TileEntityPlantingStation;
 import com.jerry.mekmm.common.upgrade.PlantingUpgradeData;
 
 import mekanism.api.IContentsListener;
+import mekanism.api.RelativeSide;
 import mekanism.api.SerializationConstants;
 import mekanism.api.Upgrade;
 import mekanism.api.chemical.BasicChemicalTank;
@@ -42,6 +43,7 @@ import mekanism.common.recipe.lookup.cache.DoubleInputRecipeCache;
 import mekanism.common.recipe.lookup.cache.InputRecipeCache.ItemChemical;
 import mekanism.common.recipe.lookup.monitor.FactoryRecipeCacheLookupMonitor;
 import mekanism.common.tier.FactoryTier;
+import mekanism.common.tile.interfaces.IBoundingBlock;
 import mekanism.common.tile.interfaces.IHasDumpButton;
 import mekanism.common.upgrade.IUpgradeData;
 import mekanism.common.util.InventoryUtils;
@@ -64,7 +66,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-public class TileEntityPlantingFactory extends TileEntityMoreMachineFactory<PlantingRecipe> implements IHasDumpButton, ConstantUsageRecipeLookupHandler,
+public class TileEntityPlantingFactory extends TileEntityMoreMachineFactory<PlantingRecipe> implements IBoundingBlock, IHasDumpButton, ConstantUsageRecipeLookupHandler,
                                        ItemChemicalRecipeLookupHandler<PlantingRecipe> {
 
     protected static final DoubleInputRecipeCache.CheckRecipeType<ItemStack, ChemicalStack, PlantingRecipe, ItemStack> OUTPUT_CHECK = (recipe, input, extra, output) -> InventoryUtils.areItemsStackable(recipe.getOutput(input, extra).first(), output);
@@ -96,6 +98,7 @@ public class TileEntityPlantingFactory extends TileEntityMoreMachineFactory<Plan
     public TileEntityPlantingFactory(Holder<Block> blockProvider, BlockPos pos, BlockState state) {
         super(blockProvider, pos, state, TRACKED_ERROR_TYPES, GLOBAL_ERROR_TYPES);
         configComponent.setupInputConfig(TransmissionType.CHEMICAL, chemicalTank);
+        configComponent.addDisabledSides(RelativeSide.TOP);
 
         chemicalInputHandler = InputHelper.getConstantInputHandler(chemicalTank);
 

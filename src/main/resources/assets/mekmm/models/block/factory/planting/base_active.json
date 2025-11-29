@@ -18,7 +18,7 @@
     "11": "minecraft:block/farmland_moist",
     "12": "minecraft:block/dirt",
     "13": "mekmm:block/planting_station/example_plant",
-    "14": "mekmm:block/planting_station/light_off"
+    "14": "mekmm:block/planting_station/light_on"
   },
   "elements": [
     {
@@ -34,11 +34,11 @@
       "from": [6, 25, 6],
       "to": [10, 27, 10],
       "faces": {
-        "north": {"uv": [0, 4, 4, 6], "texture": "#14"},
-        "east": {"uv": [0, 4, 4, 6], "texture": "#14"},
-        "south": {"uv": [0, 4, 4, 6], "texture": "#14"},
-        "west": {"uv": [0, 4, 4, 6], "texture": "#14"},
-        "down": {"uv": [0, 0, 4, 4], "texture": "#14"}
+        "north": {"uv": [0, 4, 4, 6], "texture": "#14", "neoforge_data": {"block_light": 15, "sky_light": 15}},
+        "east": {"uv": [0, 4, 4, 6], "texture": "#14", "neoforge_data": {"block_light": 15, "sky_light": 15}},
+        "south": {"uv": [0, 4, 4, 6], "texture": "#14", "neoforge_data": {"block_light": 15, "sky_light": 15}},
+        "west": {"uv": [0, 4, 4, 6], "texture": "#14", "neoforge_data": {"block_light": 15, "sky_light": 15}},
+        "down": {"uv": [0, 0, 4, 4], "texture": "#14", "neoforge_data": {"block_light": 15, "sky_light": 15}}
       }
     },
     {
