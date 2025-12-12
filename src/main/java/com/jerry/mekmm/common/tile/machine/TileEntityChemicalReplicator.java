@@ -30,6 +30,11 @@ import mekanism.common.capabilities.holder.energy.EnergyContainerHelper;
 import mekanism.common.capabilities.holder.energy.IEnergyContainerHolder;
 import mekanism.common.capabilities.holder.slot.IInventorySlotHolder;
 import mekanism.common.capabilities.holder.slot.InventorySlotHelper;
+import mekanism.common.integration.computer.SpecialComputerMethodWrapper.ComputerChemicalTankWrapper;
+import mekanism.common.integration.computer.SpecialComputerMethodWrapper.ComputerIInventorySlotWrapper;
+import mekanism.common.integration.computer.annotation.ComputerMethod;
+import mekanism.common.integration.computer.annotation.WrappingComputerMethod;
+import mekanism.common.integration.computer.computercraft.ComputerConstants;
 import mekanism.common.inventory.container.slot.SlotOverlay;
 import mekanism.common.inventory.slot.EnergyInventorySlot;
 import mekanism.common.inventory.slot.chemical.ChemicalInventorySlot;
@@ -70,10 +75,23 @@ public class TileEntityChemicalReplicator extends TileEntityProgressMachine<MMBa
 
     public static HashMap<String, Integer> customRecipeMap = ValidatorUtils.getRecipeFromConfig(MoreMachineConfig.general.chemicalReplicatorRecipe.get());
 
-    public IChemicalTank firstInputTank;
-    public IChemicalTank chemicalOutputTank;
+    // 要复制的化学品
+    @WrappingComputerMethod(wrapper = ComputerChemicalTankWrapper.class,
+                            methodNames = { "getInput", "getInputCapacity", "getInputNeeded",
+                                    "getInputFilledPercentage" },
+                            docPlaceholder = "input tank")
+    public IChemicalTank inputTank;
+    @WrappingComputerMethod(wrapper = ComputerChemicalTankWrapper.class,
+                            methodNames = { "getOutput", "getOutputCapacity", "getOutputNeeded",
+                                    "getOutputFilledPercentage" },
+                            docPlaceholder = "output tank")
+    public IChemicalTank outputTank;
     // UU
-    public IChemicalTank secondaryInputTank;
+    @WrappingComputerMethod(wrapper = ComputerChemicalTankWrapper.class,
+                            methodNames = { "getUU", "getUUCapacity", "getUUNeeded",
+                                    "getUUFilledPercentage" },
+                            docPlaceholder = "uu tank")
+    public IChemicalTank uuTank;
 
     private MachineEnergyContainer<TileEntityChemicalReplicator> energyContainer;
 
@@ -82,39 +100,43 @@ public class TileEntityChemicalReplicator extends TileEntityProgressMachine<MMBa
     private final IOutputHandler<@NotNull ChemicalStack> outputHandler;
     // 气罐槽
     // UU物质
-    ChemicalInventorySlot firstSlot;
+    @WrappingComputerMethod(wrapper = ComputerIInventorySlotWrapper.class, methodNames = "getUUSlot", docPlaceholder = "uu slot")
+    ChemicalInventorySlot uuSlot;
     // 要复制的化学品
-    ChemicalInventorySlot secondarySlot;
+    @WrappingComputerMethod(wrapper = ComputerIInventorySlotWrapper.class, methodNames = "getInputSlot", docPlaceholder = "input slot")
+    ChemicalInventorySlot inputSlot;
+    @WrappingComputerMethod(wrapper = ComputerIInventorySlotWrapper.class, methodNames = "getOutputSlot", docPlaceholder = "output slot")
     ChemicalInventorySlot outputSlot;
+    @WrappingComputerMethod(wrapper = ComputerIInventorySlotWrapper.class, methodNames = "getEnergyItem", docPlaceholder = "energy slot")
     EnergyInventorySlot energySlot;
 
     public TileEntityChemicalReplicator(BlockPos pos, BlockState state) {
         super(MoreMachineBlocks.CHEMICAL_REPLICATOR, pos, state, TRACKED_ERROR_TYPES, BASE_TICKS_REQUIRED);
-        configComponent.setupItemIOExtraConfig(firstSlot, outputSlot, secondarySlot, energySlot);
+        configComponent.setupItemIOExtraConfig(uuSlot, outputSlot, inputSlot, energySlot);
         ConfigInfo fluidConfig = configComponent.getConfig(TransmissionType.CHEMICAL);
         if (fluidConfig != null) {
-            fluidConfig.addSlotInfo(DataType.INPUT_1, new ChemicalSlotInfo(true, false, firstInputTank));
-            fluidConfig.addSlotInfo(DataType.INPUT_2, new ChemicalSlotInfo(true, false, secondaryInputTank));
-            fluidConfig.addSlotInfo(DataType.OUTPUT, new ChemicalSlotInfo(false, true, chemicalOutputTank));
+            fluidConfig.addSlotInfo(DataType.INPUT_1, new ChemicalSlotInfo(true, false, inputTank));
+            fluidConfig.addSlotInfo(DataType.INPUT_2, new ChemicalSlotInfo(true, false, uuTank));
+            fluidConfig.addSlotInfo(DataType.OUTPUT, new ChemicalSlotInfo(false, true, outputTank));
         }
         configComponent.setupInputConfig(TransmissionType.ENERGY, energyContainer);
 
         ejectorComponent = new TileComponentEjector(this);
         ejectorComponent.setOutputData(configComponent, TransmissionType.CHEMICAL, TransmissionType.ITEM)
-                .setCanTankEject(tank -> tank == chemicalOutputTank);
+                .setCanTankEject(tank -> tank == outputTank);
 
-        firstInputHandler = InputHelper.getInputHandler(firstInputTank, RecipeError.NOT_ENOUGH_INPUT);
-        outputHandler = OutputHelper.getOutputHandler(chemicalOutputTank, RecipeError.NOT_ENOUGH_OUTPUT_SPACE);
-        secondaryInputHandler = InputHelper.getConstantInputHandler(secondaryInputTank);
+        firstInputHandler = InputHelper.getInputHandler(inputTank, RecipeError.NOT_ENOUGH_INPUT);
+        outputHandler = OutputHelper.getOutputHandler(outputTank, RecipeError.NOT_ENOUGH_OUTPUT_SPACE);
+        secondaryInputHandler = InputHelper.getConstantInputHandler(uuTank);
     }
 
     @NotNull
     @Override
     public IChemicalTankHolder getInitialChemicalTanks(IContentsListener listener, IContentsListener recipeCacheListener, IContentsListener recipeCacheUnpauseListener) {
         ChemicalTankHelper builder = ChemicalTankHelper.forSideWithConfig(this);
-        builder.addTank(firstInputTank = BasicChemicalTank.inputModern(MAX_GAS, TileEntityChemicalReplicator::isValidInputChemical, recipeCacheListener));
-        builder.addTank(secondaryInputTank = BasicChemicalTank.inputModern(MAX_GAS, TileEntityChemicalReplicator::isValidChemicalInput, recipeCacheListener));
-        builder.addTank(chemicalOutputTank = BasicChemicalTank.output(MAX_GAS, recipeCacheUnpauseListener));
+        builder.addTank(inputTank = BasicChemicalTank.inputModern(MAX_GAS, TileEntityChemicalReplicator::isValidInputChemical, recipeCacheListener));
+        builder.addTank(uuTank = BasicChemicalTank.inputModern(MAX_GAS, TileEntityChemicalReplicator::isValidChemicalInput, recipeCacheListener));
+        builder.addTank(outputTank = BasicChemicalTank.output(MAX_GAS, recipeCacheUnpauseListener));
         return builder.build();
     }
 
@@ -130,14 +152,14 @@ public class TileEntityChemicalReplicator extends TileEntityProgressMachine<MMBa
     protected @Nullable IInventorySlotHolder getInitialInventory(IContentsListener listener, IContentsListener recipeCacheListener, IContentsListener recipeCacheUnpauseListener) {
         InventorySlotHelper builder = InventorySlotHelper.forSideWithConfig(this);
         // 化学品罐槽位置
-        builder.addSlot(firstSlot = ChemicalInventorySlot.fillOrConvert(firstInputTank, this::getLevel, listener, 29, 65));
-        builder.addSlot(secondarySlot = ChemicalInventorySlot.fillOrConvert(secondaryInputTank, this::getLevel, listener, 8, 65));
-        builder.addSlot(outputSlot = ChemicalInventorySlot.drain(chemicalOutputTank, listener, 132, 65));
+        builder.addSlot(uuSlot = ChemicalInventorySlot.fillOrConvert(inputTank, this::getLevel, listener, 29, 65));
+        builder.addSlot(inputSlot = ChemicalInventorySlot.fillOrConvert(uuTank, this::getLevel, listener, 8, 65));
+        builder.addSlot(outputSlot = ChemicalInventorySlot.drain(outputTank, listener, 132, 65));
         // 能量槽位置
         builder.addSlot(energySlot = EnergyInventorySlot.fillOrConvert(energyContainer, this::getLevel, listener, 152, 65));
         // 化学品罐槽减号图标
-        firstSlot.setSlotOverlay(SlotOverlay.MINUS);
-        secondarySlot.setSlotOverlay(SlotOverlay.MINUS);
+        uuSlot.setSlotOverlay(SlotOverlay.MINUS);
+        inputSlot.setSlotOverlay(SlotOverlay.MINUS);
         outputSlot.setSlotOverlay(SlotOverlay.PLUS);
         return builder.build();
     }
@@ -159,8 +181,8 @@ public class TileEntityChemicalReplicator extends TileEntityProgressMachine<MMBa
     protected boolean onUpdateServer() {
         boolean sendUpdatePacket = super.onUpdateServer();
         energySlot.fillContainerOrConvert();
-        firstSlot.fillTankOrConvert();
-        secondarySlot.fillTankOrConvert();
+        uuSlot.fillTankOrConvert();
+        inputSlot.fillTankOrConvert();
         recipeCacheLookupMonitor.updateAndProcess();
         return sendUpdatePacket;
     }
@@ -219,4 +241,11 @@ public class TileEntityChemicalReplicator extends TileEntityProgressMachine<MMBa
     public boolean isConfigurationDataCompatible(Block type) {
         return super.isConfigurationDataCompatible(type) || MoreMachineUtils.isSameMMTypeFactory(getBlockHolder(), type);
     }
+
+    // Methods relating to IComputerTile
+    @ComputerMethod(methodDescription = ComputerConstants.DESCRIPTION_GET_ENERGY_USAGE)
+    long getEnergyUsage() {
+        return getActive() ? energyContainer.getEnergyPerTick() : 0;
+    }
+    // End methods IComputerTile
 }

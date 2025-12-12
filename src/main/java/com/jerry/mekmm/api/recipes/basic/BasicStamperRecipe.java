@@ -20,18 +20,18 @@ import java.util.Objects;
 @NothingNullByDefault
 public class BasicStamperRecipe extends StamperRecipe {
 
-    protected final ItemStackIngredient mainInput;
-    protected final ItemStackIngredient extraInput;
+    protected final ItemStackIngredient input;
+    protected final ItemStackIngredient mold;
     protected final ItemStack output;
 
     /**
-     * @param mainInput  Main input.
-     * @param extraInput Secondary/extra input.
-     * @param output     Output.
+     * @param input  Input.
+     * @param mold   Mold.
+     * @param output Output.
      */
-    public BasicStamperRecipe(ItemStackIngredient mainInput, ItemStackIngredient extraInput, ItemStack output) {
-        this.mainInput = Objects.requireNonNull(mainInput, "Main input cannot be null.");
-        this.extraInput = Objects.requireNonNull(extraInput, "Secondary/Extra input cannot be null.");
+    public BasicStamperRecipe(ItemStackIngredient input, ItemStackIngredient mold, ItemStack output) {
+        this.input = Objects.requireNonNull(input, "Input cannot be null.");
+        this.mold = Objects.requireNonNull(mold, "Mold cannot be null.");
         Objects.requireNonNull(output, "Output cannot be null.");
         if (output.isEmpty()) {
             throw new IllegalArgumentException("Output cannot be empty.");
@@ -41,17 +41,17 @@ public class BasicStamperRecipe extends StamperRecipe {
 
     @Override
     public boolean test(ItemStack input, ItemStack extra) {
-        return mainInput.test(input) && extraInput.test(extra);
+        return this.input.test(input) && mold.test(extra);
     }
 
     @Override
     public ItemStackIngredient getInput() {
-        return mainInput;
+        return input;
     }
 
     @Override
     public ItemStackIngredient getMold() {
-        return extraInput;
+        return mold;
     }
 
     @Override
@@ -88,12 +88,12 @@ public class BasicStamperRecipe extends StamperRecipe {
             return false;
         }
         BasicStamperRecipe other = (BasicStamperRecipe) o;
-        return mainInput.equals(other.mainInput) && extraInput.equals(other.extraInput) && ItemStack.matches(output, other.output);
+        return input.equals(other.input) && mold.equals(other.mold) && ItemStack.matches(output, other.output);
     }
 
     @Override
     public int hashCode() {
-        int hash = Objects.hash(mainInput, extraInput);
+        int hash = Objects.hash(input, mold);
         hash = 31 * hash + ItemStack.hashItemAndComponents(output);
         hash = 31 * hash + output.getCount();
         return hash;
