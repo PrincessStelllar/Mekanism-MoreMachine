@@ -74,6 +74,26 @@ public class BasicRecyclerRecipe extends RecyclerRecipe {
         return MoreMachineRecipeSerializers.RECYCLER.get();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        } else if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        BasicRecyclerRecipe other = (BasicRecyclerRecipe) o;
+        return input.equals(other.input) && ItemStack.matches(chanceOutput, other.chanceOutput) && chance == other.chance;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = input.hashCode();
+        hash = 31 * hash + ItemStack.hashItemAndComponents(chanceOutput);
+        hash = 31 * hash + chanceOutput.getCount();
+        hash = 31 * hash + Double.hashCode(chance);
+        return hash;
+    }
+
     /**
      * Represents a precalculated chance based output. This output keeps track of what random value was calculated for
      * use in comparing if the secondary output should be

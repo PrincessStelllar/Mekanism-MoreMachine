@@ -31,11 +31,11 @@ public class GuiChemicalReplicator extends GuiConfigurableTile<TileEntityChemica
     protected void addGuiElements() {
         super.addGuiElements();
         addRenderableWidget(new GuiEnergyTab(this, tile.getEnergyContainer(), tile::getActive));
-        addRenderableWidget(new GuiChemicalGauge(() -> tile.firstInputTank, () -> tile.getChemicalTanks(null), GaugeType.STANDARD, this, 28, 4))
+        addRenderableWidget(new GuiChemicalGauge(() -> tile.inputTank, () -> tile.getChemicalTanks(null), GaugeType.STANDARD, this, 28, 4))
                 .warning(WarningTracker.WarningType.NO_MATCHING_RECIPE, tile.getWarningCheck(CachedRecipe.OperationTracker.RecipeError.NOT_ENOUGH_INPUT));
-        addRenderableWidget(new GuiChemicalGauge(() -> tile.secondaryInputTank, () -> tile.getChemicalTanks(null), GaugeType.STANDARD, this, 7, 4))
+        addRenderableWidget(new GuiChemicalGauge(() -> tile.uuTank, () -> tile.getChemicalTanks(null), GaugeType.STANDARD, this, 7, 4))
                 .warning(WarningTracker.WarningType.NO_MATCHING_RECIPE, tile.getWarningCheck(CachedRecipe.OperationTracker.RecipeError.NOT_ENOUGH_SECONDARY_INPUT));
-        addRenderableWidget(new GuiChemicalGauge(() -> tile.chemicalOutputTank, () -> tile.getChemicalTanks(null), GaugeType.STANDARD, this, 131, 4))
+        addRenderableWidget(new GuiChemicalGauge(() -> tile.outputTank, () -> tile.getChemicalTanks(null), GaugeType.STANDARD, this, 131, 4))
                 .warning(WarningTracker.WarningType.NO_SPACE_IN_OUTPUT, tile.getWarningCheck(CachedRecipe.OperationTracker.RecipeError.NOT_ENOUGH_OUTPUT_SPACE));
         addRenderableWidget(new GuiEnergyGauge(tile.getEnergyContainer(), GaugeType.STANDARD, this, 151, 4))
                 .warning(WarningTracker.WarningType.NOT_ENOUGH_ENERGY, tile.getWarningCheck(CachedRecipe.OperationTracker.RecipeError.NOT_ENOUGH_ENERGY));

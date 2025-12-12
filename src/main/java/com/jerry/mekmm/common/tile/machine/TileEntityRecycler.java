@@ -1,6 +1,7 @@
 package com.jerry.mekmm.common.tile.machine;
 
 import com.jerry.mekmm.api.recipes.RecyclerRecipe;
+import com.jerry.mekmm.api.recipes.RecyclerRecipe.ChanceOutput;
 import com.jerry.mekmm.api.recipes.cache.MoreMachineOneInputCachedRecipe;
 import com.jerry.mekmm.api.recipes.outputs.MoreMachineOutputHelper;
 import com.jerry.mekmm.client.recipe_viewer.MMRecipeViewerRecipeType;
@@ -20,6 +21,10 @@ import mekanism.common.capabilities.holder.energy.EnergyContainerHelper;
 import mekanism.common.capabilities.holder.energy.IEnergyContainerHolder;
 import mekanism.common.capabilities.holder.slot.IInventorySlotHolder;
 import mekanism.common.capabilities.holder.slot.InventorySlotHelper;
+import mekanism.common.integration.computer.SpecialComputerMethodWrapper.ComputerIInventorySlotWrapper;
+import mekanism.common.integration.computer.annotation.ComputerMethod;
+import mekanism.common.integration.computer.annotation.WrappingComputerMethod;
+import mekanism.common.integration.computer.computercraft.ComputerConstants;
 import mekanism.common.inventory.slot.EnergyInventorySlot;
 import mekanism.common.inventory.slot.InputInventorySlot;
 import mekanism.common.inventory.slot.OutputInventorySlot;
@@ -40,6 +45,7 @@ import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,25 +62,29 @@ public class TileEntityRecycler extends TileEntityProgressMachine<RecyclerRecipe
 
     public static final int BASE_TICKS_REQUIRED = 10 * SharedConstants.TICKS_PER_SECOND;
 
-    private final IOutputHandler<RecyclerRecipe.@NotNull ChanceOutput> chanceOutputHandler;
+    private final IOutputHandler<@NotNull ChanceOutput> chanceOutputHandler;
     private final IInputHandler<@NotNull ItemStack> inputHandler;
 
+    @Getter
     private MachineEnergyContainer<TileEntityRecycler> energyContainer;
 
+    @WrappingComputerMethod(wrapper = ComputerIInventorySlotWrapper.class, methodNames = "getInput", docPlaceholder = "input slot")
     InputInventorySlot inputSlot;
-    OutputInventorySlot chanceOutputSlot;
+    @WrappingComputerMethod(wrapper = ComputerIInventorySlotWrapper.class, methodNames = "getOutput", docPlaceholder = "output slot")
+    OutputInventorySlot outputSlot;
+    @WrappingComputerMethod(wrapper = ComputerIInventorySlotWrapper.class, methodNames = "getEnergyItem", docPlaceholder = "energy slot")
     EnergyInventorySlot energySlot;
 
     public TileEntityRecycler(BlockPos pos, BlockState state) {
         super(MoreMachineBlocks.RECYCLER, pos, state, TRACKED_ERROR_TYPES, BASE_TICKS_REQUIRED);
-        configComponent.setupItemIOConfig(Collections.singletonList(inputSlot), Collections.singletonList(chanceOutputSlot), energySlot, false);
+        configComponent.setupItemIOConfig(Collections.singletonList(inputSlot), Collections.singletonList(outputSlot), energySlot, false);
         configComponent.setupInputConfig(TransmissionType.ENERGY, energyContainer);
 
         ejectorComponent = new TileComponentEjector(this);
         ejectorComponent.setOutputData(configComponent, TransmissionType.ITEM);
 
         inputHandler = InputHelper.getInputHandler(inputSlot, RecipeError.NOT_ENOUGH_INPUT);
-        chanceOutputHandler = MoreMachineOutputHelper.getOutputHandler(chanceOutputSlot, RecipeError.NOT_ENOUGH_OUTPUT_SPACE);
+        chanceOutputHandler = MoreMachineOutputHelper.getOutputHandler(outputSlot, RecipeError.NOT_ENOUGH_OUTPUT_SPACE);
     }
 
     @NotNull
@@ -92,7 +102,7 @@ public class TileEntityRecycler extends TileEntityProgressMachine<RecyclerRecipe
         builder.addSlot(inputSlot = InputInventorySlot.at(this::containsRecipe, recipeCacheListener, 64, 17))
                 .tracksWarnings(slot -> slot.warning(WarningType.NO_MATCHING_RECIPE, getWarningCheck(RecipeError.NOT_ENOUGH_INPUT)));
         // 输出槽位置
-        builder.addSlot(chanceOutputSlot = OutputInventorySlot.at(recipeCacheUnpauseListener, 116, 35))
+        builder.addSlot(outputSlot = OutputInventorySlot.at(recipeCacheUnpauseListener, 116, 35))
                 .tracksWarnings(slot -> slot.warning(WarningType.NO_SPACE_IN_OUTPUT, getWarningCheck(RecipeError.NOT_ENOUGH_OUTPUT_SPACE)));
         // 能量槽位置
         builder.addSlot(energySlot = EnergyInventorySlot.fillOrConvert(energyContainer, this::getLevel, listener, 64, 53));
@@ -136,10 +146,6 @@ public class TileEntityRecycler extends TileEntityProgressMachine<RecyclerRecipe
                 .setBaselineMaxOperations(this::getOperationsPerTick);
     }
 
-    public MachineEnergyContainer<TileEntityRecycler> getEnergyContainer() {
-        return energyContainer;
-    }
-
     @Override
     public boolean isConfigurationDataCompatible(Block type) {
         return super.isConfigurationDataCompatible(type) || MoreMachineUtils.isSameMMTypeFactory(getBlockHolder(), type);
@@ -148,6 +154,13 @@ public class TileEntityRecycler extends TileEntityProgressMachine<RecyclerRecipe
     @NotNull
     @Override
     public MachineUpgradeData getUpgradeData(HolderLookup.Provider provider) {
-        return new MachineUpgradeData(provider, redstone, getControlType(), getEnergyContainer(), getOperatingTicks(), energySlot, inputSlot, chanceOutputSlot, getComponents());
+        return new MachineUpgradeData(provider, redstone, getControlType(), getEnergyContainer(), getOperatingTicks(), energySlot, inputSlot, outputSlot, getComponents());
     }
+
+    // Methods relating to IComputerTile
+    @ComputerMethod(methodDescription = ComputerConstants.DESCRIPTION_GET_ENERGY_USAGE)
+    long getEnergyUsage() {
+        return getActive() ? energyContainer.getEnergyPerTick() : 0;
+    }
+    // End methods IComputerTile
 }

@@ -35,6 +35,11 @@ import mekanism.common.capabilities.holder.energy.IEnergyContainerHolder;
 import mekanism.common.capabilities.holder.slot.IInventorySlotHolder;
 import mekanism.common.capabilities.holder.slot.InventorySlotHelper;
 import mekanism.common.config.MekanismConfig;
+import mekanism.common.integration.computer.SpecialComputerMethodWrapper.ComputerChemicalTankWrapper;
+import mekanism.common.integration.computer.SpecialComputerMethodWrapper.ComputerIInventorySlotWrapper;
+import mekanism.common.integration.computer.annotation.ComputerMethod;
+import mekanism.common.integration.computer.annotation.WrappingComputerMethod;
+import mekanism.common.integration.computer.computercraft.ComputerConstants;
 import mekanism.common.integration.energy.EnergyCompatUtils;
 import mekanism.common.inventory.slot.EnergyInventorySlot;
 import mekanism.common.inventory.slot.InputInventorySlot;
@@ -43,7 +48,7 @@ import mekanism.common.inventory.slot.chemical.ChemicalInventorySlot;
 import mekanism.common.inventory.warning.WarningTracker;
 import mekanism.common.lib.transmitter.TransmissionType;
 import mekanism.common.recipe.IMekanismRecipeTypeProvider;
-import mekanism.common.recipe.lookup.IDoubleRecipeLookupHandler;
+import mekanism.common.recipe.lookup.IDoubleRecipeLookupHandler.ItemChemicalRecipeLookupHandler;
 import mekanism.common.recipe.lookup.IRecipeLookupHandler.ConstantUsageRecipeLookupHandler;
 import mekanism.common.recipe.lookup.cache.InputRecipeCache.ItemChemical;
 import mekanism.common.tile.component.TileComponentEjector;
@@ -73,11 +78,9 @@ import java.util.List;
 import java.util.Objects;
 
 public class TileEntityPlantingStation extends TileEntityProgressMachine<PlantingRecipe> implements ConstantUsageRecipeLookupHandler,
-                                       IDoubleRecipeLookupHandler.ItemChemicalRecipeLookupHandler<PlantingRecipe>, IBoundingBlock {
+                                       ItemChemicalRecipeLookupHandler<PlantingRecipe>, IBoundingBlock {
 
     public static final RecipeError NOT_ENOUGH_SPACE_SECONDARY_OUTPUT_ERROR = RecipeError.create();
-    public static final int BASE_TICKS_REQUIRED = 10 * SharedConstants.TICKS_PER_SECOND;
-    public static final long MAX_GAS = 210;
     private static final List<RecipeError> TRACKED_ERROR_TYPES = List.of(
             RecipeError.NOT_ENOUGH_ENERGY,
             RecipeError.NOT_ENOUGH_ENERGY_REDUCED_RATE,
@@ -87,17 +90,33 @@ public class TileEntityPlantingStation extends TileEntityProgressMachine<Plantin
             NOT_ENOUGH_SPACE_SECONDARY_OUTPUT_ERROR,
             RecipeError.INPUT_DOESNT_PRODUCE_OUTPUT);
     private final ChemicalUsageMultiplier chemicalUsageMultiplier;
+
+    public static final int BASE_TICKS_REQUIRED = 10 * SharedConstants.TICKS_PER_SECOND;
+    public static final long MAX_GAS = 210;
+
+    // 化学品存储槽
+    @WrappingComputerMethod(wrapper = ComputerChemicalTankWrapper.class,
+                            methodNames = { "getChemical", "getChemicalCapacity", "getChemicalNeeded",
+                                    "getChemicalFilledPercentage" },
+                            docPlaceholder = "chemical tank")
+    public IChemicalTank chemicalTank;
+
     private final IOutputHandler<ChanceOutput> outputHandler;
     private final IInputHandler<ItemStack> itemInputHandler;
     private final ILongInputHandler<ChemicalStack> chemicalInputHandler;
-    // 化学品存储槽
-    public IChemicalTank chemicalTank;
+
+    @WrappingComputerMethod(wrapper = ComputerIInventorySlotWrapper.class, methodNames = "getInput", docPlaceholder = "input slot")
     InputInventorySlot inputSlot;
+    @WrappingComputerMethod(wrapper = ComputerIInventorySlotWrapper.class, methodNames = "getOutput", docPlaceholder = "output slot")
     OutputInventorySlot mainOutputSlot;
+    @WrappingComputerMethod(wrapper = ComputerIInventorySlotWrapper.class, methodNames = "getSecondaryOutput", docPlaceholder = "secondary output slot")
     OutputInventorySlot secondaryOutputSlot;
     // 气罐槽
+    @WrappingComputerMethod(wrapper = ComputerIInventorySlotWrapper.class, methodNames = "getChemicalItem", docPlaceholder = "chemical input slot")
     ChemicalInventorySlot chemicalSlot;
+    @WrappingComputerMethod(wrapper = ComputerIInventorySlotWrapper.class, methodNames = "getEnergyItem", docPlaceholder = "energy slot")
     EnergyInventorySlot energySlot;
+
     private double chemicalPerTickMeanMultiplier = 1;
     private long baseTotalUsage;
     private long usedSoFar;
@@ -297,4 +316,11 @@ public class TileEntityPlantingStation extends TileEntityProgressMachine<Plantin
         }
         return true;
     }
+
+    // Methods relating to IComputerTile
+    @ComputerMethod(methodDescription = ComputerConstants.DESCRIPTION_GET_ENERGY_USAGE)
+    long getEnergyUsage() {
+        return getActive() ? energyContainer.getEnergyPerTick() : 0;
+    }
+    // End methods IComputerTile
 }

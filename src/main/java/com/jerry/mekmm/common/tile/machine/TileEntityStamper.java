@@ -21,7 +21,7 @@ import mekanism.common.capabilities.holder.energy.EnergyContainerHelper;
 import mekanism.common.capabilities.holder.energy.IEnergyContainerHolder;
 import mekanism.common.capabilities.holder.slot.IInventorySlotHolder;
 import mekanism.common.capabilities.holder.slot.InventorySlotHelper;
-import mekanism.common.integration.computer.SpecialComputerMethodWrapper;
+import mekanism.common.integration.computer.SpecialComputerMethodWrapper.ComputerIInventorySlotWrapper;
 import mekanism.common.integration.computer.annotation.ComputerMethod;
 import mekanism.common.integration.computer.annotation.WrappingComputerMethod;
 import mekanism.common.integration.computer.computercraft.ComputerConstants;
@@ -44,6 +44,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -60,29 +61,30 @@ public class TileEntityStamper extends TileEntityProgressMachine<StamperRecipe> 
     public static final int BASE_TICKS_REQUIRED = 10 * SharedConstants.TICKS_PER_SECOND;
 
     private final IOutputHandler<@NotNull ItemStack> outputHandler;
-    private final IInputHandler<@NotNull ItemStack> inputHandler;
-    private final IInputHandler<@NotNull ItemStack> extraInputHandler;
+    private final IInputHandler<@NotNull ItemStack> itemInputHandler;
+    private final IInputHandler<@NotNull ItemStack> moldInputHandler;
 
+    @Getter
     private MachineEnergyContainer<TileEntityStamper> energyContainer;
-    @WrappingComputerMethod(wrapper = SpecialComputerMethodWrapper.ComputerIInventorySlotWrapper.class, methodNames = "getMainInput", docPlaceholder = "main input slot")
-    InputInventorySlot mainInputSlot;
-    @WrappingComputerMethod(wrapper = SpecialComputerMethodWrapper.ComputerIInventorySlotWrapper.class, methodNames = "getSecondaryInput", docPlaceholder = "secondary input slot")
-    InputInventorySlot extraInputSlot;
-    @WrappingComputerMethod(wrapper = SpecialComputerMethodWrapper.ComputerIInventorySlotWrapper.class, methodNames = "getOutput", docPlaceholder = "output slot")
+    @WrappingComputerMethod(wrapper = ComputerIInventorySlotWrapper.class, methodNames = "getItemInput", docPlaceholder = "item input slot")
+    InputInventorySlot itemInputSlot;
+    @WrappingComputerMethod(wrapper = ComputerIInventorySlotWrapper.class, methodNames = "getMoldInput", docPlaceholder = "mold input slot")
+    InputInventorySlot moldInputSlot;
+    @WrappingComputerMethod(wrapper = ComputerIInventorySlotWrapper.class, methodNames = "getOutput", docPlaceholder = "output slot")
     OutputInventorySlot outputSlot;
-    @WrappingComputerMethod(wrapper = SpecialComputerMethodWrapper.ComputerIInventorySlotWrapper.class, methodNames = "getEnergyItem", docPlaceholder = "energy slot")
+    @WrappingComputerMethod(wrapper = ComputerIInventorySlotWrapper.class, methodNames = "getEnergyItem", docPlaceholder = "energy slot")
     EnergyInventorySlot energySlot;
 
     public TileEntityStamper(BlockPos pos, BlockState state) {
         super(MoreMachineBlocks.CNC_STAMPER, pos, state, TRACKED_ERROR_TYPES, BASE_TICKS_REQUIRED);
-        configComponent.setupItemIOExtraConfig(mainInputSlot, outputSlot, extraInputSlot, energySlot);
+        configComponent.setupItemIOExtraConfig(itemInputSlot, outputSlot, moldInputSlot, energySlot);
         configComponent.setupInputConfig(TransmissionType.ENERGY, energyContainer);
 
         ejectorComponent = new TileComponentEjector(this);
         ejectorComponent.setOutputData(configComponent, TransmissionType.ITEM);
 
-        inputHandler = InputHelper.getInputHandler(mainInputSlot, RecipeError.NOT_ENOUGH_INPUT);
-        extraInputHandler = InputHelper.getInputHandler(extraInputSlot, RecipeError.NOT_ENOUGH_SECONDARY_INPUT);
+        itemInputHandler = InputHelper.getInputHandler(itemInputSlot, RecipeError.NOT_ENOUGH_INPUT);
+        moldInputHandler = InputHelper.getInputHandler(moldInputSlot, RecipeError.NOT_ENOUGH_SECONDARY_INPUT);
         outputHandler = OutputHelper.getOutputHandler(outputSlot, RecipeError.NOT_ENOUGH_OUTPUT_SPACE);
     }
 
@@ -98,14 +100,14 @@ public class TileEntityStamper extends TileEntityProgressMachine<StamperRecipe> 
     @Override
     protected IInventorySlotHolder getInitialInventory(IContentsListener listener, IContentsListener recipeCacheListener, IContentsListener recipeCacheUnpauseListener) {
         InventorySlotHelper builder = InventorySlotHelper.forSideWithConfig(this);
-        builder.addSlot(mainInputSlot = InputInventorySlot.at(item -> containsRecipeAB(item, extraInputSlot.getStack()), this::containsRecipeA, recipeCacheListener,
+        builder.addSlot(itemInputSlot = InputInventorySlot.at(item -> containsRecipeAB(item, moldInputSlot.getStack()), this::containsRecipeA, recipeCacheListener,
                 64, 17)).tracksWarnings(slot -> slot.warning(WarningType.NO_MATCHING_RECIPE, getWarningCheck(RecipeError.NOT_ENOUGH_INPUT)));
-        builder.addSlot(extraInputSlot = InputInventorySlot.at(item -> containsRecipeBA(mainInputSlot.getStack(), item), this::containsRecipeB, recipeCacheListener,
+        builder.addSlot(moldInputSlot = InputInventorySlot.at(item -> containsRecipeBA(itemInputSlot.getStack(), item), this::containsRecipeB, recipeCacheListener,
                 64, 53)).tracksWarnings(slot -> slot.warning(WarningType.NO_MATCHING_RECIPE, getWarningCheck(RecipeError.NOT_ENOUGH_SECONDARY_INPUT)));
         builder.addSlot(outputSlot = OutputInventorySlot.at(recipeCacheUnpauseListener, 116, 35))
                 .tracksWarnings(slot -> slot.warning(WarningType.NO_SPACE_IN_OUTPUT, getWarningCheck(RecipeError.NOT_ENOUGH_OUTPUT_SPACE)));
         builder.addSlot(energySlot = EnergyInventorySlot.fillOrConvert(energyContainer, this::getLevel, listener, 39, 35));
-        extraInputSlot.setSlotType(ContainerSlotType.EXTRA);
+        moldInputSlot.setSlotType(ContainerSlotType.EXTRA);
         return builder.build();
     }
 
@@ -130,13 +132,13 @@ public class TileEntityStamper extends TileEntityProgressMachine<StamperRecipe> 
     @Nullable
     @Override
     public StamperRecipe getRecipe(int cacheIndex) {
-        return findFirstRecipe(inputHandler, extraInputHandler);
+        return findFirstRecipe(itemInputHandler, moldInputHandler);
     }
 
     @NotNull
     @Override
     public CachedRecipe<StamperRecipe> createNewCachedRecipe(@NotNull StamperRecipe recipe, int cacheIndex) {
-        return StamperCachedRecipe.createCache(recipe, recheckAllRecipeErrors, inputHandler, extraInputHandler, outputHandler)
+        return StamperCachedRecipe.createCache(recipe, recheckAllRecipeErrors, itemInputHandler, moldInputHandler, outputHandler)
                 .setErrorsChanged(this::onErrorsChanged)
                 .setCanHolderFunction(this::canFunction)
                 .setActive(this::setActive)
@@ -150,11 +152,7 @@ public class TileEntityStamper extends TileEntityProgressMachine<StamperRecipe> 
     @NotNull
     @Override
     public StamperUpgradeData getUpgradeData(HolderLookup.Provider provider) {
-        return new StamperUpgradeData(provider, redstone, getControlType(), getEnergyContainer(), getOperatingTicks(), energySlot, extraInputSlot, mainInputSlot, outputSlot, getComponents());
-    }
-
-    public MachineEnergyContainer<TileEntityStamper> getEnergyContainer() {
-        return energyContainer;
+        return new StamperUpgradeData(provider, redstone, getControlType(), getEnergyContainer(), getOperatingTicks(), energySlot, moldInputSlot, itemInputSlot, outputSlot, getComponents());
     }
 
     @Override
