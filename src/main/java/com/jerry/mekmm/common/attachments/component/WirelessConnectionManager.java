@@ -1,7 +1,7 @@
 package com.jerry.mekmm.common.attachments.component;
 
 import com.jerry.mekmm.Mekmm;
-import com.jerry.mekmm.common.tile.TileEntityWirelessTransmissionStation;
+import com.jerry.mekmm.common.tile.machine.TileEntityWirelessTransmissionStation;
 import com.jerry.mekmm.common.tile.prefab.TileEntityConnectableMachine.ConnectStatus;
 
 import mekanism.api.chemical.IChemicalHandler;

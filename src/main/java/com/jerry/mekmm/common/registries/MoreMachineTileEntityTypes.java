@@ -6,10 +6,10 @@ import com.jerry.mekmm.common.content.blocktype.MoreMachineFactoryType;
 import com.jerry.mekmm.common.item.block.machine.ItemBlockMoreMachineFactory;
 import com.jerry.mekmm.common.tile.TileEntityAuthorDoll;
 import com.jerry.mekmm.common.tile.TileEntityModelerDoll;
-import com.jerry.mekmm.common.tile.TileEntityWirelessChargingStation;
-import com.jerry.mekmm.common.tile.TileEntityWirelessTransmissionStation;
 import com.jerry.mekmm.common.tile.factory.*;
 import com.jerry.mekmm.common.tile.machine.*;
+import com.jerry.mekmm.common.tile.machine.TileEntityWirelessChargingStation;
+import com.jerry.mekmm.common.tile.machine.TileEntityWirelessTransmissionStation;
 import com.jerry.mekmm.common.util.MoreMachineUtils;
 
 import mekanism.common.capabilities.Capabilities;
@@ -41,8 +41,8 @@ public class MoreMachineTileEntityTypes {
             registerFactory(tier, MoreMachineFactoryType.RECYCLING, TileEntityRecyclingFactory::new);
             registerFactory(tier, MoreMachineFactoryType.PLANTING_STATION, TileEntityPlantingFactory::new);
             registerFactory(tier, MoreMachineFactoryType.CNC_STAMPING, TileEntityStampingFactory::new);
-            registerFactory(tier, MoreMachineFactoryType.CNC_LATHING, TileEntityItemStackToItemStackMMFactory::new);
-            registerFactory(tier, MoreMachineFactoryType.CNC_ROLLING_MILL, TileEntityItemStackToItemStackMMFactory::new);
+            registerFactory(tier, MoreMachineFactoryType.CNC_LATHING, TileEntityItemStackToItemStackMoreMachineFactory::new);
+            registerFactory(tier, MoreMachineFactoryType.CNC_ROLLING_MILL, TileEntityItemStackToItemStackMoreMachineFactory::new);
             registerFactory(tier, MoreMachineFactoryType.REPLICATING, TileEntityReplicatingFactory::new);
         }
     }

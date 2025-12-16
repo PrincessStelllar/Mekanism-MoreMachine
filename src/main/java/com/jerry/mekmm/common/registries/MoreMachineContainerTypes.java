@@ -4,10 +4,10 @@ import com.jerry.mekmm.Mekmm;
 import com.jerry.mekmm.common.inventory.container.tile.MoreMachineFactoryContainer;
 import com.jerry.mekmm.common.inventory.container.tile.WirelessTransmissionStationConfigContainer;
 import com.jerry.mekmm.common.inventory.container.tile.WirelessTransmissionStationContainer;
-import com.jerry.mekmm.common.tile.TileEntityWirelessChargingStation;
-import com.jerry.mekmm.common.tile.TileEntityWirelessTransmissionStation;
 import com.jerry.mekmm.common.tile.factory.TileEntityMoreMachineFactory;
 import com.jerry.mekmm.common.tile.machine.*;
+import com.jerry.mekmm.common.tile.machine.TileEntityWirelessChargingStation;
+import com.jerry.mekmm.common.tile.machine.TileEntityWirelessTransmissionStation;
 
 import mekanism.common.inventory.container.tile.MekanismTileContainer;
 import mekanism.common.registration.impl.ContainerTypeDeferredRegister;

@@ -5,7 +5,7 @@ import com.jerry.mekmm.client.gui.element.GuiWirelessChargingStationSwitch.Switc
 import com.jerry.mekmm.common.MoreMachineLang;
 import com.jerry.mekmm.common.network.to_server.MoreMachinePacketGuiInteract;
 import com.jerry.mekmm.common.network.to_server.MoreMachinePacketGuiInteract.MMGuiInteraction;
-import com.jerry.mekmm.common.tile.TileEntityWirelessChargingStation;
+import com.jerry.mekmm.common.tile.machine.TileEntityWirelessChargingStation;
 
 import mekanism.client.SpecialColors;
 import mekanism.client.gui.GuiConfigurableTile;

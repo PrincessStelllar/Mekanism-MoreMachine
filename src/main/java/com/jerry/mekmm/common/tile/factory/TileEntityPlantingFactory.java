@@ -33,6 +33,11 @@ import mekanism.common.capabilities.holder.chemical.ChemicalTankHelper;
 import mekanism.common.capabilities.holder.chemical.IChemicalTankHolder;
 import mekanism.common.capabilities.holder.slot.InventorySlotHelper;
 import mekanism.common.config.MekanismConfig;
+import mekanism.common.integration.computer.ComputerException;
+import mekanism.common.integration.computer.SpecialComputerMethodWrapper.ComputerChemicalTankWrapper;
+import mekanism.common.integration.computer.SpecialComputerMethodWrapper.ComputerIInventorySlotWrapper;
+import mekanism.common.integration.computer.annotation.ComputerMethod;
+import mekanism.common.integration.computer.annotation.WrappingComputerMethod;
 import mekanism.common.inventory.slot.OutputInventorySlot;
 import mekanism.common.inventory.slot.chemical.ChemicalInventorySlot;
 import mekanism.common.inventory.warning.WarningTracker.WarningType;
@@ -100,9 +105,11 @@ public class TileEntityPlantingFactory extends TileEntityMoreMachineFactory<Plan
     private final ILongInputHandler<@NotNull ChemicalStack> chemicalInputHandler;
     private IOutputHandler<ChanceOutput>[] outputHandlers;
 
+    @WrappingComputerMethod(wrapper = ComputerIInventorySlotWrapper.class, methodNames = "getChemicalItem", docPlaceholder = "chemical item (extra) slot")
     ChemicalInventorySlot chemicalSlot;
 
     @Getter
+    @WrappingComputerMethod(wrapper = ComputerChemicalTankWrapper.class, methodNames = { "getChemical", "getChemicalCapacity", "getChemicalNeeded", "getChemicalFilledPercentage" }, docPlaceholder = "chemical tank")
     IChemicalTank chemicalTank;
 
     private final ChemicalUsageMultiplier chemicalUsageMultiplier;
@@ -319,4 +326,20 @@ public class TileEntityPlantingFactory extends TileEntityMoreMachineFactory<Plan
     protected record PackedStack(ItemStack firstStack, ItemStack secondaryStack) {
 
     }
+
+    // Methods relating to IComputerTile
+    @ComputerMethod
+    ItemStack getSecondaryOutput(int process) throws ComputerException {
+        validateValidProcess(process);
+        IInventorySlot secondaryOutputSlot = processInfoSlots[process].secondaryOutputSlot();
+        // This should never be null, but in case it is, handle it
+        return secondaryOutputSlot == null ? ItemStack.EMPTY : secondaryOutputSlot.getStack();
+    }
+
+    @ComputerMethod(requiresPublicSecurity = true, methodDescription = "Empty the contents of the chemical tank into the environment")
+    void dumpChemical() throws ComputerException {
+        validateSecurityIsPublic();
+        dump();
+    }
+    // End methods IComputerTile
 }

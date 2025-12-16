@@ -3,10 +3,10 @@ package com.jerry.mekmm.common.network.to_server;
 import com.jerry.mekaf.common.tile.factory.TileEntityAdvancedFactoryBase;
 
 import com.jerry.mekmm.Mekmm;
-import com.jerry.mekmm.common.tile.TileEntityWirelessChargingStation;
-import com.jerry.mekmm.common.tile.TileEntityWirelessTransmissionStation;
 import com.jerry.mekmm.common.tile.factory.TileEntityMoreMachineFactory;
 import com.jerry.mekmm.common.tile.machine.TileEntityReplicator;
+import com.jerry.mekmm.common.tile.machine.TileEntityWirelessChargingStation;
+import com.jerry.mekmm.common.tile.machine.TileEntityWirelessTransmissionStation;
 
 import mekanism.api.functions.TriConsumer;
 import mekanism.common.network.IMekanismPacket;

@@ -1,6 +1,7 @@
 package com.jerry.mekmm.common.registries;
 
 import com.jerry.mekmm.common.MoreMachineLang;
+import com.jerry.mekmm.common.block.attribute.MoreMachineBounding;
 import com.jerry.mekmm.common.config.MoreMachineConfig;
 import com.jerry.mekmm.common.content.blocktype.MoreMachineBlockShapes;
 import com.jerry.mekmm.common.content.blocktype.MoreMachineFactory;
@@ -10,16 +11,14 @@ import com.jerry.mekmm.common.content.blocktype.MoreMachineMachine.MMMachineBuil
 import com.jerry.mekmm.common.content.blocktype.MoreMachineMachine.MoreMachineFactoryMachine;
 import com.jerry.mekmm.common.tile.TileEntityAuthorDoll;
 import com.jerry.mekmm.common.tile.TileEntityModelerDoll;
-import com.jerry.mekmm.common.tile.TileEntityWirelessChargingStation;
-import com.jerry.mekmm.common.tile.TileEntityWirelessTransmissionStation;
 import com.jerry.mekmm.common.tile.machine.*;
+import com.jerry.mekmm.common.tile.machine.TileEntityWirelessChargingStation;
+import com.jerry.mekmm.common.tile.machine.TileEntityWirelessTransmissionStation;
 import com.jerry.mekmm.common.util.MoreMachineEnumUtils;
 import com.jerry.mekmm.common.util.MoreMachineUtils;
 
 import mekanism.api.Upgrade;
 import mekanism.common.block.attribute.*;
-import mekanism.common.block.attribute.AttributeHasBounding.HandleBoundingBlock;
-import mekanism.common.block.attribute.AttributeHasBounding.TriBooleanFunction;
 import mekanism.common.content.blocktype.BlockTypeTile;
 import mekanism.common.content.blocktype.Machine;
 import mekanism.common.content.blocktype.Machine.MachineBuilder;
@@ -27,10 +26,6 @@ import mekanism.common.lib.transmitter.TransmissionType;
 import mekanism.common.registries.MekanismSounds;
 import mekanism.common.tier.FactoryTier;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.BlockPos.MutableBlockPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 import com.google.common.collect.HashBasedTable;
@@ -155,47 +150,21 @@ public class MoreMachineBlockTypes {
             .withCustomShape(MoreMachineBlockShapes.WIRELESS_CHARGING_STATION)
             .with(AttributeCustomSelectionBox.JSON)
             .without(AttributeUpgradeSupport.class)
-            .withBounding(new HandleBoundingBlock() {
-
-                @Override
-                public <DATA> boolean handle(Level level, BlockPos pos, BlockState state, DATA data, TriBooleanFunction<Level, BlockPos, DATA> consumer) {
-                    MutableBlockPos mutable = new MutableBlockPos();
-                    for (int i = 0; i < 2; i++) {
-                        mutable.setWithOffset(pos, 0, i + 1, 0);
-                        if (!consumer.accept(level, mutable, data)) {
-                            return false;
-                        }
-                    }
-                    return true;
-                }
-            })
+            .with(MoreMachineBounding.VERTICAL_THREE_BLOCK)
             .withComputerSupport("wirelessChargingStation")
             .replace(Attributes.ACTIVE)
             .build();
 
     // Wireless Transmission Station
     public static final Machine<TileEntityWirelessTransmissionStation> WIRELESS_TRANSMISSION_STATION = MachineBuilder
-            .createMachine(() -> MoreMachineTileEntityTypes.WIRELESS_TRANSMISSION_STATION, MoreMachineLang.DESCRIPTION_WIRELESS_CHARGING_STATION)
+            .createMachine(() -> MoreMachineTileEntityTypes.WIRELESS_TRANSMISSION_STATION, MoreMachineLang.DESCRIPTION_WIRELESS_TRANSMISSION_STATION)
             .withGui(() -> MoreMachineContainerTypes.WIRELESS_TRANSMISSION_STATION)
             .withEnergyConfig(MoreMachineConfig.storage.wirelessTransmitterStation)
             .withSideConfig(TransmissionType.ITEM, TransmissionType.CHEMICAL, TransmissionType.FLUID, TransmissionType.ENERGY, TransmissionType.HEAT)
             .withCustomShape(MoreMachineBlockShapes.WIRELESS_TRANSMISSION_STATION)
             .with(AttributeCustomSelectionBox.JSON)
             .without(AttributeUpgradeSupport.class)
-            .withBounding(new HandleBoundingBlock() {
-
-                @Override
-                public <DATA> boolean handle(Level level, BlockPos pos, BlockState state, DATA data, TriBooleanFunction<Level, BlockPos, DATA> consumer) {
-                    MutableBlockPos mutable = new MutableBlockPos();
-                    for (int i = 0; i < 2; i++) {
-                        mutable.setWithOffset(pos, 0, i + 1, 0);
-                        if (!consumer.accept(level, mutable, data)) {
-                            return false;
-                        }
-                    }
-                    return true;
-                }
-            })
+            .with(MoreMachineBounding.VERTICAL_THREE_BLOCK)
             .withComputerSupport("wirelessTransmissionStation")
             .replace(Attributes.ACTIVE)
             .build();

@@ -1,7 +1,8 @@
-package com.jerry.mekmm.common.tile;
+package com.jerry.mekmm.common.tile.machine;
 
 import com.jerry.mekmm.api.MoreMachineSerializationConstants;
 import com.jerry.mekmm.common.config.MoreMachineConfig;
+import com.jerry.mekmm.common.integration.computer.ComputerEnergyContainerWrapper;
 import com.jerry.mekmm.common.registries.MoreMachineBlocks;
 import com.jerry.mekmm.common.registries.MoreMachineDataComponents;
 
@@ -18,6 +19,10 @@ import mekanism.common.capabilities.holder.energy.IEnergyContainerHolder;
 import mekanism.common.capabilities.holder.slot.IInventorySlotHolder;
 import mekanism.common.capabilities.holder.slot.InventorySlotHelper;
 import mekanism.common.config.MekanismConfig;
+import mekanism.common.integration.computer.ComputerException;
+import mekanism.common.integration.computer.SpecialComputerMethodWrapper.ComputerIInventorySlotWrapper;
+import mekanism.common.integration.computer.annotation.ComputerMethod;
+import mekanism.common.integration.computer.annotation.WrappingComputerMethod;
 import mekanism.common.integration.curios.CuriosIntegration;
 import mekanism.common.integration.energy.EnergyCompatUtils;
 import mekanism.common.inventory.container.MekanismContainer;
@@ -40,6 +45,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.IItemHandler;
 
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,13 +53,17 @@ import java.util.UUID;
 
 public class TileEntityWirelessChargingStation extends TileEntityConfigurableMachine implements IBoundingBlock {
 
-    private MachineEnergyContainer<TileEntityWirelessChargingStation> energyContainer;
+    @Getter
+    @WrappingComputerMethod(wrapper = ComputerEnergyContainerWrapper.class, methodNames = { "getEnergy", "getEnergyCapacity", "getEnergyNeeded", "getEnergyFilledPercentage" }, docPlaceholder = "energy container")
+    MachineEnergyContainer<TileEntityWirelessChargingStation> energyContainer;
 
     private boolean chargeEquipment = false;
     private boolean chargeInventory = false;
     private boolean chargeCurios = false;
 
+    @WrappingComputerMethod(wrapper = ComputerIInventorySlotWrapper.class, methodNames = "getChargeItem", docPlaceholder = "charge slot")
     EnergyInventorySlot chargeSlot;
+    @WrappingComputerMethod(wrapper = ComputerIInventorySlotWrapper.class, methodNames = "getDischargeItem", docPlaceholder = "discharge slot")
     EnergyInventorySlot dischargeSlot;
 
     public TileEntityWirelessChargingStation(BlockPos pos, BlockState state) {
@@ -223,10 +233,6 @@ public class TileEntityWirelessChargingStation extends TileEntityConfigurableMac
         return chargeCurios;
     }
 
-    public MachineEnergyContainer<TileEntityWirelessChargingStation> getEnergyContainer() {
-        return energyContainer;
-    }
-
     public long getOutput() {
         return Math.min(MekanismConfig.gear.mekaSuitInventoryChargeRate.get(), energyContainer.getEnergy());
     }
@@ -254,4 +260,33 @@ public class TileEntityWirelessChargingStation extends TileEntityConfigurableMac
         container.track(SyncableBoolean.create(this::getChargeInventory, value -> chargeInventory = value));
         container.track(SyncableBoolean.create(this::getChargeCurios, value -> chargeCurios = value));
     }
+
+    // Methods relating to IComputerTile
+    @ComputerMethod(requiresPublicSecurity = true, methodDescription = "Set whether to charge equipment")
+    void setChargeEquipment(boolean charge) throws ComputerException {
+        validateSecurityIsPublic();
+        if (chargeEquipment != charge) {
+            chargeEquipment = charge;
+            markForSave();
+        }
+    }
+
+    @ComputerMethod(requiresPublicSecurity = true, methodDescription = "Set whether to charge inventory")
+    void setChargeInventory(boolean charge) throws ComputerException {
+        validateSecurityIsPublic();
+        if (chargeInventory != charge) {
+            chargeInventory = charge;
+            markForSave();
+        }
+    }
+
+    @ComputerMethod(requiresPublicSecurity = true, methodDescription = "Set whether to charge curios")
+    void setChargeCurios(boolean charge) throws ComputerException {
+        validateSecurityIsPublic();
+        if (chargeCurios != charge) {
+            chargeCurios = charge;
+            markForSave();
+        }
+    }
+    // End methods IComputerTile
 }

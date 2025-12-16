@@ -54,6 +54,7 @@ public enum MoreMachineLang implements ILangEntry {
     DESCRIPTION_CHEMicAL_REPLICATOR("description", "chemical_replicator"),
     DESCRIPTION_AMBIENT_GAS_COLLECTOR("description", "ambient_gas_collector"),
     DESCRIPTION_WIRELESS_CHARGING_STATION("description", "wireless_charging_station"),
+    DESCRIPTION_WIRELESS_TRANSMISSION_STATION("description", "wireless_transmission_station"),
     AUTHOR_DOLL("description", "author_doll"),
     MODELER_DOLL("description", "modeler_doll"),
     // JEI
