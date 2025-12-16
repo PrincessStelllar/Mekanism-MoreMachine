@@ -28,7 +28,7 @@ public class MoreMachineTierConfig extends BaseMekanismConfig {
     }
 
     private void addMaxChemicalTankCategory(ModConfigSpec.Builder builder) {
-        MoreMachineConfigTranslations.TIER_LARGE_CHEMICAL_TANK.applyToBuilder(builder).push("max_chemical_tanks");
+        MoreMachineConfigTranslations.TIER_MID_CHEMICAL_TANK.applyToBuilder(builder).push("max_chemical_tanks");
         for (MaxChemicalTankTier tier : MoreMachineEnumUtils.MAX_CHEMICAL_TANK_TIERS) {
             TierTranslations translations = create(tier);
             String tierName = tier.getBaseTier().getSimpleName().toLowerCase(Locale.ROOT);
@@ -42,7 +42,7 @@ public class MoreMachineTierConfig extends BaseMekanismConfig {
     }
 
     private void addMidChemicalTankCategory(ModConfigSpec.Builder builder) {
-        MoreMachineConfigTranslations.TIER_LARGE_CHEMICAL_TANK.applyToBuilder(builder).push("mid_chemical_tanks");
+        MoreMachineConfigTranslations.TIER_MAX_CHEMICAL_TANK.applyToBuilder(builder).push("mid_chemical_tanks");
         for (MidChemicalTankTier tier : MoreMachineEnumUtils.MID_CHEMICAL_TANK_TIERS) {
             TierTranslations translations = create(tier);
             String tierName = tier.getBaseTier().getSimpleName().toLowerCase(Locale.ROOT);
