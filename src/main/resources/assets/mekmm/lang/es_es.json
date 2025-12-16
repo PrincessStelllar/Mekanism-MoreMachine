@@ -351,6 +351,7 @@
   "description.mekmm.chemical_replicator": "Una máquina que viola las leyes de la física y puede replicar productos químicos usando una cierta sustancia.",
   "description.mekmm.ambient_gas_collector": "Una máquina que extrae sustancias misteriosas de la atmósfera.",
   "description.mekmm.wireless_charging_station": "Una máquina para la carga inalámbrica del inventario y la armadura (incluyendo Curios, si tienes uno).",
+  "description.mekmm.wireless_transmission_station": "A machine capable of wirelessly transmitting five types of substances.",
   "description.mekmm.author_doll": "Una muñeca con la skin del autor.(Solo decoraciones)",
   "description.mekmm.modeler_doll": "Una muñeca con la skin del modelador.(Gracias a todos los que proporcionaron texturas y modelos para mekmm)",
 

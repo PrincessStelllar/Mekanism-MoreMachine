@@ -9,8 +9,8 @@ import net.minecraft.world.item.ItemStack;
 public class TileEntityStamper$ComputerHandler extends ComputerMethodFactory<TileEntityStamper> {
 
     public TileEntityStamper$ComputerHandler() {
-        register(MethodData.builder("getMainInput", TileEntityStamper$ComputerHandler::itemInputSlot$getItemInput).returnType(ItemStack.class).methodDescription("Get the contents of the item input slot."));
-        register(MethodData.builder("getSecondaryInput", TileEntityStamper$ComputerHandler::moldInputSlot$getMoldInput).returnType(ItemStack.class).methodDescription("Get the contents of the mold input slot."));
+        register(MethodData.builder("getItemInput", TileEntityStamper$ComputerHandler::itemInputSlot$getItemInput).returnType(ItemStack.class).methodDescription("Get the contents of the item input slot."));
+        register(MethodData.builder("getMoldInput", TileEntityStamper$ComputerHandler::moldInputSlot$getMoldInput).returnType(ItemStack.class).methodDescription("Get the contents of the mold input slot."));
         register(MethodData.builder("getOutput", TileEntityStamper$ComputerHandler::outputSlot$getOutput).returnType(ItemStack.class).methodDescription("Get the contents of the output slot."));
         register(MethodData.builder("getEnergyItem", TileEntityStamper$ComputerHandler::energySlot$getEnergyItem).returnType(ItemStack.class).methodDescription("Get the contents of the energy slot."));
         register(MethodData.builder("getEnergyUsage", TileEntityStamper$ComputerHandler::getEnergyUsage_0).returnType(long.class).methodDescription("Get the energy used in the last tick by the machine"));

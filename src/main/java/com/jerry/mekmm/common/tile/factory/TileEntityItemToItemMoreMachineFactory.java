@@ -26,12 +26,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Set;
 
-public abstract class TileEntityItemToItemMMFactory<RECIPE extends MekanismRecipe<?>> extends TileEntityMoreMachineFactory<RECIPE> {
+public abstract class TileEntityItemToItemMoreMachineFactory<RECIPE extends MekanismRecipe<?>> extends TileEntityMoreMachineFactory<RECIPE> {
 
     protected IInputHandler<@NotNull ItemStack>[] inputHandlers;
     protected IOutputHandler<@NotNull ItemStack>[] outputHandlers;
 
-    protected TileEntityItemToItemMMFactory(Holder<Block> blockProvider, BlockPos pos, BlockState state, List<RecipeError> errorTypes, Set<RecipeError> globalErrorTypes) {
+    protected TileEntityItemToItemMoreMachineFactory(Holder<Block> blockProvider, BlockPos pos, BlockState state, List<RecipeError> errorTypes, Set<RecipeError> globalErrorTypes) {
         super(blockProvider, pos, state, errorTypes, globalErrorTypes);
     }
 

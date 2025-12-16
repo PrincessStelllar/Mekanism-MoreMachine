@@ -1,4 +1,4 @@
-package com.jerry.mekmm.common.tile;
+package com.jerry.mekmm.common.tile.machine;
 
 import com.jerry.mekmm.api.MoreMachineSerializationConstants;
 import com.jerry.mekmm.common.attachments.component.ConnectionConfig;
@@ -36,6 +36,10 @@ import mekanism.common.capabilities.holder.heat.IHeatCapacitorHolder;
 import mekanism.common.capabilities.holder.slot.IInventorySlotHolder;
 import mekanism.common.capabilities.holder.slot.InventorySlotHelper;
 import mekanism.common.content.network.transmitter.LogisticalTransporterBase;
+import mekanism.common.integration.computer.ComputerException;
+import mekanism.common.integration.computer.SpecialComputerMethodWrapper.*;
+import mekanism.common.integration.computer.annotation.ComputerMethod;
+import mekanism.common.integration.computer.annotation.WrappingComputerMethod;
 import mekanism.common.inventory.container.MekanismContainer;
 import mekanism.common.inventory.container.slot.SlotOverlay;
 import mekanism.common.inventory.container.sync.SyncableDouble;
@@ -96,18 +100,27 @@ public class TileEntityWirelessTransmissionStation extends TileEntityConnectable
     private double lastTransferLoss;
     private double lastEnvironmentLoss;
 
+    @WrappingComputerMethod(wrapper = ComputerFluidTankWrapper.class, methodNames = { "getFluid", "getFluidCapacity", "getFluidNeeded", "getFluidFilledPercentage" }, docPlaceholder = "fluid tank")
     public BasicFluidTank fluidTank;
+    @WrappingComputerMethod(wrapper = ComputerChemicalTankWrapper.class, methodNames = { "getChemical", "getChemicalCapacity", "getChemicalNeeded", "getChemicalFilledPercentage" }, docPlaceholder = "chemical tank")
     public IChemicalTank chemicalTank;
+    @WrappingComputerMethod(wrapper = ComputerIInventorySlotWrapper.class, methodNames = "getItemSlot", docPlaceholder = "item slot")
     public BasicInventorySlot inventorySlot;
     public MachineEnergyContainer<TileEntityWirelessTransmissionStation> energyContainer;
+    @WrappingComputerMethod(wrapper = ComputerHeatCapacitorWrapper.class, methodNames = "getTemperature", docPlaceholder = "transmission")
     public BasicHeatCapacitor heatCapacitor;
 
-    private FluidInventorySlot fluidFillSlot;
-    private FluidInventorySlot fluidDrainSlot;
-    private OutputInventorySlot fluidOutputSlot;
-    private ChemicalInventorySlot chemicalInputSlot;
-    private ChemicalInventorySlot chemicalOutputSlot;
-    private EnergyInventorySlot energySlot;
+    @WrappingComputerMethod(wrapper = ComputerIInventorySlotWrapper.class, methodNames = "getFluidFillItem", docPlaceholder = "fill fluid slot")
+    FluidInventorySlot fluidFillSlot;
+    @WrappingComputerMethod(wrapper = ComputerIInventorySlotWrapper.class, methodNames = "getFluidDrainItem", docPlaceholder = "drain fluid slot")
+    FluidInventorySlot fluidDrainSlot;
+    @WrappingComputerMethod(wrapper = ComputerIInventorySlotWrapper.class, methodNames = "getFluidItemOutput", docPlaceholder = "fluid item output slot")
+    OutputInventorySlot fluidOutputSlot;
+    @WrappingComputerMethod(wrapper = ComputerIInventorySlotWrapper.class, methodNames = "getChemicalFillItem", docPlaceholder = "fill chemical slot")
+    ChemicalInventorySlot chemicalInputSlot;
+    @WrappingComputerMethod(wrapper = ComputerIInventorySlotWrapper.class, methodNames = "getChemicalDrainItem", docPlaceholder = "drain chemical slot")
+    ChemicalInventorySlot chemicalOutputSlot;
+    EnergyInventorySlot energySlot;
 
     public TileEntityWirelessTransmissionStation(BlockPos pos, BlockState state) {
         super(MoreMachineBlocks.WIRELESS_TRANSMISSION_STATION, pos, state);
@@ -478,4 +491,42 @@ public class TileEntityWirelessTransmissionStation extends TileEntityConnectable
     public WirelessConnectionManager getConnectManager() {
         return connectionManager;
     }
+
+    // Methods relating to IComputerTile
+    @ComputerMethod(requiresPublicSecurity = true, methodDescription = "Set energy output rate")
+    void computerSetEnergyRate(long rate) throws ComputerException {
+        validateSecurityIsPublic();
+        if (energyRate != rate) {
+            energyRate = rate;
+            markForSave();
+        }
+    }
+
+    @ComputerMethod(requiresPublicSecurity = true, methodDescription = "Set fluids output rate")
+    void computerSetFluidsRate(int rate) throws ComputerException {
+        validateSecurityIsPublic();
+        if (fluidsRate != rate) {
+            fluidsRate = rate;
+            markForSave();
+        }
+    }
+
+    @ComputerMethod(requiresPublicSecurity = true, methodDescription = "Set chemicals output rate")
+    void computerSetChemicalsRate(long rate) throws ComputerException {
+        validateSecurityIsPublic();
+        if (chemicalsRate != rate) {
+            chemicalsRate = rate;
+            markForSave();
+        }
+    }
+
+    @ComputerMethod(requiresPublicSecurity = true, methodDescription = "Set items output rate")
+    void computerSetItemsRate(int rate) throws ComputerException {
+        validateSecurityIsPublic();
+        if (itemsRate != rate) {
+            itemsRate = rate;
+            markForSave();
+        }
+    }
+    // End methods IComputerTile
 }

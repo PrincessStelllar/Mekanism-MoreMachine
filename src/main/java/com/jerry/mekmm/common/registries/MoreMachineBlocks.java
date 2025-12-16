@@ -12,11 +12,11 @@ import com.jerry.mekmm.common.content.blocktype.MoreMachineMachine.MoreMachineFa
 import com.jerry.mekmm.common.item.block.*;
 import com.jerry.mekmm.common.item.block.machine.ItemBlockMoreMachineFactory;
 import com.jerry.mekmm.common.recipe.MoreMachineRecipeType;
-import com.jerry.mekmm.common.tile.TileEntityWirelessChargingStation;
-import com.jerry.mekmm.common.tile.TileEntityWirelessTransmissionStation;
 import com.jerry.mekmm.common.tile.factory.TileEntityMoreMachineFactory;
 import com.jerry.mekmm.common.tile.factory.TileEntityReplicatingFactory;
 import com.jerry.mekmm.common.tile.machine.*;
+import com.jerry.mekmm.common.tile.machine.TileEntityWirelessChargingStation;
+import com.jerry.mekmm.common.tile.machine.TileEntityWirelessTransmissionStation;
 import com.jerry.mekmm.common.util.MoreMachineEnumUtils;
 import com.jerry.mekmm.common.util.MoreMachineUtils;
 
@@ -285,7 +285,7 @@ public class MoreMachineBlocks {
     }
 
     @SuppressWarnings("unchecked")
-    public static BlockRegistryObject<BlockMoreMachineFactory<?>, ItemBlockMoreMachineFactory>[] getMMFactoryBlocks() {
+    public static BlockRegistryObject<BlockMoreMachineFactory<?>, ItemBlockMoreMachineFactory>[] getMoreMachineFactoryBlocks() {
         return MM_FACTORIES.values().toArray(new BlockRegistryObject[0]);
     }
 }

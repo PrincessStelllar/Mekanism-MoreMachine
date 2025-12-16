@@ -64,6 +64,7 @@ import net.neoforged.neoforge.common.util.ItemStackMap;
 
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import lombok.Getter;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -97,6 +98,7 @@ public abstract class TileEntityMoreMachineFactory<RECIPE extends MekanismRecipe
      * How many ticks it takes, with upgrades, to run an operation
      */
     private int ticksRequired = BASE_TICKS_REQUIRED;
+    @Getter
     private int operationsPerTick = 1;// will increase for modified upgrade multipliers
     private boolean sorting;
     private boolean sortingNeeded = true;
@@ -108,6 +110,7 @@ public abstract class TileEntityMoreMachineFactory<RECIPE extends MekanismRecipe
     @NotNull
     protected final MoreMachineFactoryType type;
 
+    @Getter
     protected MachineEnergyContainer<TileEntityMoreMachineFactory<?>> energyContainer;
     protected final List<IInventorySlot> inputSlots;
     protected final List<IInventorySlot> outputSlots;
@@ -382,10 +385,6 @@ public abstract class TileEntityMoreMachineFactory<RECIPE extends MekanismRecipe
         return ticksRequired;
     }
 
-    public int getOperationsPerTick() {
-        return this.operationsPerTick;
-    }
-
     @Override
     public void loadAdditional(@NotNull CompoundTag nbt, @NotNull HolderLookup.Provider provider) {
         super.loadAdditional(nbt, provider);
@@ -453,10 +452,6 @@ public abstract class TileEntityMoreMachineFactory<RECIPE extends MekanismRecipe
 
     public boolean hasSecondaryResourceBar() {
         return false;
-    }
-
-    public MachineEnergyContainer<TileEntityMoreMachineFactory<?>> getEnergyContainer() {
-        return energyContainer;
     }
 
     @Override

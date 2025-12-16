@@ -1,7 +1,7 @@
 package com.jerry.mekmm.common.inventory.container.tile;
 
 import com.jerry.mekmm.common.registries.MoreMachineContainerTypes;
-import com.jerry.mekmm.common.tile.TileEntityWirelessTransmissionStation;
+import com.jerry.mekmm.common.tile.machine.TileEntityWirelessTransmissionStation;
 
 import mekanism.common.inventory.container.tile.MekanismTileContainer;
 

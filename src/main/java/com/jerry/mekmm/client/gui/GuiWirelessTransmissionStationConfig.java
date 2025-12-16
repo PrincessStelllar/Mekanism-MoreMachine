@@ -6,7 +6,7 @@ import com.jerry.mekmm.common.attachments.component.ConnectionConfig;
 import com.jerry.mekmm.common.config.MoreMachineConfig;
 import com.jerry.mekmm.common.network.to_server.MoreMachinePacketGuiInteract;
 import com.jerry.mekmm.common.network.to_server.MoreMachinePacketGuiInteract.MMGuiInteraction;
-import com.jerry.mekmm.common.tile.TileEntityWirelessTransmissionStation;
+import com.jerry.mekmm.common.tile.machine.TileEntityWirelessTransmissionStation;
 
 import mekanism.client.gui.element.button.MekanismImageButton;
 import mekanism.client.gui.element.text.GuiTextField;

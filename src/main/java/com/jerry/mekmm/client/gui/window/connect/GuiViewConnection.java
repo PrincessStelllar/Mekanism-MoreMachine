@@ -4,7 +4,7 @@ import com.jerry.mekmm.client.render.BlockHighlightManager;
 import com.jerry.mekmm.common.MoreMachineLang;
 import com.jerry.mekmm.common.attachments.component.ConnectionConfig;
 import com.jerry.mekmm.common.network.to_server.PacketViewConnection;
-import com.jerry.mekmm.common.tile.TileEntityWirelessTransmissionStation;
+import com.jerry.mekmm.common.tile.machine.TileEntityWirelessTransmissionStation;
 import com.jerry.mekmm.common.util.MoreMachineUtils;
 
 import mekanism.api.text.EnumColor;

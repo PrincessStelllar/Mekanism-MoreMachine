@@ -1,7 +1,7 @@
 package com.jerry.mekmm.common.item.block;
 
 import com.jerry.mekmm.common.registries.MoreMachineDataComponents;
-import com.jerry.mekmm.common.tile.TileEntityWirelessChargingStation;
+import com.jerry.mekmm.common.tile.machine.TileEntityWirelessChargingStation;
 
 import mekanism.common.attachments.component.AttachedEjector;
 import mekanism.common.attachments.component.AttachedSideConfig;

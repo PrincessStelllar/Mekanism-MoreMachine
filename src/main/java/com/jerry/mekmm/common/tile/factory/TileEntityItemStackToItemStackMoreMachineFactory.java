@@ -32,8 +32,8 @@ import java.util.List;
 import java.util.Set;
 
 // Lathe, Rolling Mill
-public class TileEntityItemStackToItemStackMMFactory extends TileEntityItemToItemMMFactory<ItemStackToItemStackRecipe> implements
-                                                     ISingleRecipeLookupHandler.ItemRecipeLookupHandler<ItemStackToItemStackRecipe> {
+public class TileEntityItemStackToItemStackMoreMachineFactory extends TileEntityItemToItemMoreMachineFactory<ItemStackToItemStackRecipe> implements
+                                                              ISingleRecipeLookupHandler.ItemRecipeLookupHandler<ItemStackToItemStackRecipe> {
 
     private static final TriPredicate<ItemStackToItemStackRecipe, ItemStack, ItemStack> OUTPUT_CHECK = (recipe, input, output) -> InventoryUtils.areItemsStackable(recipe.getOutput(input), output);
     private static final List<RecipeError> TRACKED_ERROR_TYPES = List.of(
@@ -43,7 +43,7 @@ public class TileEntityItemStackToItemStackMMFactory extends TileEntityItemToIte
             RecipeError.INPUT_DOESNT_PRODUCE_OUTPUT);
     private static final Set<RecipeError> GLOBAL_ERROR_TYPES = Set.of(RecipeError.NOT_ENOUGH_ENERGY);
 
-    public TileEntityItemStackToItemStackMMFactory(Holder<Block> blockProvider, BlockPos pos, BlockState state) {
+    public TileEntityItemStackToItemStackMoreMachineFactory(Holder<Block> blockProvider, BlockPos pos, BlockState state) {
         super(blockProvider, pos, state, TRACKED_ERROR_TYPES, GLOBAL_ERROR_TYPES);
     }
 

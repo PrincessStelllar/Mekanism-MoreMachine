@@ -3,7 +3,7 @@ package com.jerry.mekmm.client.render.tileentity;
 import com.jerry.mekmm.client.render.RenderLineHelper;
 import com.jerry.mekmm.common.attachments.component.ConnectionConfig;
 import com.jerry.mekmm.common.item.ItemConnector;
-import com.jerry.mekmm.common.tile.TileEntityWirelessTransmissionStation;
+import com.jerry.mekmm.common.tile.machine.TileEntityWirelessTransmissionStation;
 
 import mekanism.api.annotations.NothingNullByDefault;
 import mekanism.client.render.tileentity.MekanismTileEntityRenderer;

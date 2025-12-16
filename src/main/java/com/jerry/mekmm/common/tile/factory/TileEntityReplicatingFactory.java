@@ -24,6 +24,10 @@ import mekanism.common.Mekanism;
 import mekanism.common.capabilities.holder.chemical.ChemicalTankHelper;
 import mekanism.common.capabilities.holder.chemical.IChemicalTankHolder;
 import mekanism.common.capabilities.holder.slot.InventorySlotHelper;
+import mekanism.common.integration.computer.ComputerException;
+import mekanism.common.integration.computer.SpecialComputerMethodWrapper;
+import mekanism.common.integration.computer.annotation.ComputerMethod;
+import mekanism.common.integration.computer.annotation.WrappingComputerMethod;
 import mekanism.common.inventory.slot.chemical.ChemicalInventorySlot;
 import mekanism.common.lib.transmitter.TransmissionType;
 import mekanism.common.recipe.IMekanismRecipeTypeProvider;
@@ -55,7 +59,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-public class TileEntityReplicatingFactory extends TileEntityItemToItemMMFactory<MMBasicItemStackChemicalToItemStackRecipe> implements IHasDumpButton,
+public class TileEntityReplicatingFactory extends TileEntityItemToItemMoreMachineFactory<MMBasicItemStackChemicalToItemStackRecipe> implements IHasDumpButton,
                                           ItemChemicalRecipeLookupHandler<MMBasicItemStackChemicalToItemStackRecipe> {
 
     protected static final DoubleInputRecipeCache.CheckRecipeType<ItemStack, ChemicalStack, MMBasicItemStackChemicalToItemStackRecipe, ItemStack> OUTPUT_CHECK = (recipe, input, extra, output) -> InventoryUtils.areItemsStackable(recipe.getOutput(input, extra), output);
@@ -76,8 +80,10 @@ public class TileEntityReplicatingFactory extends TileEntityItemToItemMMFactory<
     private final ILongInputHandler<ChemicalStack> chemicalInputHandler;
     // 化学品存储槽
     @Getter
+    @WrappingComputerMethod(wrapper = SpecialComputerMethodWrapper.ComputerChemicalTankWrapper.class, methodNames = { "getChemical", "getChemicalCapacity", "getChemicalNeeded", "getChemicalFilledPercentage" }, docPlaceholder = "chemical tank")
     public IChemicalTank chemicalTank;
     // 气罐槽
+    @WrappingComputerMethod(wrapper = SpecialComputerMethodWrapper.ComputerIInventorySlotWrapper.class, methodNames = "getChemicalItem", docPlaceholder = "chemical item slot")
     ChemicalInventorySlot chemicalSlot;
 
     public TileEntityReplicatingFactory(Holder<Block> blockProvider, BlockPos pos, BlockState state) {
@@ -222,4 +228,12 @@ public class TileEntityReplicatingFactory extends TileEntityItemToItemMMFactory<
     public void dump() {
         chemicalTank.setEmpty();
     }
+
+    // Methods relating to IComputerTile
+    @ComputerMethod(requiresPublicSecurity = true, methodDescription = "Empty the contents of the chemical tank into the environment")
+    void dumpChemical() throws ComputerException {
+        validateSecurityIsPublic();
+        dump();
+    }
+    // End methods IComputerTile
 }

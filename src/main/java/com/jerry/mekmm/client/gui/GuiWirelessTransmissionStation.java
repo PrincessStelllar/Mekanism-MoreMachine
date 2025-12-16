@@ -5,7 +5,7 @@ import com.jerry.mekmm.common.MoreMachineLang;
 import com.jerry.mekmm.common.inventory.container.tile.WirelessTransmissionStationContainer;
 import com.jerry.mekmm.common.network.to_server.button.MoreMachinePacketTileButtonPress;
 import com.jerry.mekmm.common.network.to_server.button.MoreMachinePacketTileButtonPress.MoreMachineClickedTileButton;
-import com.jerry.mekmm.common.tile.TileEntityWirelessTransmissionStation;
+import com.jerry.mekmm.common.tile.machine.TileEntityWirelessTransmissionStation;
 
 import mekanism.client.gui.GuiConfigurableTile;
 import mekanism.client.gui.element.bar.GuiBar.IBarInfoHandler;
