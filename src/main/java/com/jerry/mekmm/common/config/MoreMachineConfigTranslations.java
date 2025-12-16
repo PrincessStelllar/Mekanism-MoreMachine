@@ -27,7 +27,8 @@ public enum MoreMachineConfigTranslations implements IConfigTranslation {
     ITEMS_RATE("general.items.max_transmission_rate", "Items Max Transmission Rate", "Set the maximum items transmission rate during wireless transmission"),
 
     // Tier Config
-    TIER_LARGE_CHEMICAL_TANK("tier.large_chemical_tank", "Large Chemical Tanks", "Settings for configuring Large Chemical Tanks", true),
+    TIER_MID_CHEMICAL_TANK("tier.mid_chemical_tank", "Mid Chemical Tanks", "Settings for configuring Mid Chemical Tanks", true),
+    TIER_MAX_CHEMICAL_TANK("tier.max_chemical_tank", "Max Chemical Tanks", "Settings for configuring Max Chemical Tanks", true),
 
     // Storage Config
     ENERGY_STORAGE_RECYCLER(TranslationPreset.ENERGY_STORAGE, "Recycler"),
