@@ -23,8 +23,8 @@ public class MMCatalystRegistryHelper {
     private MMCatalystRegistryHelper() {}
 
     /**
-     * 用于往“ENERGY_CONVERSION”或“CHEMICAL_CONVERSION”添加新机器，与Mekanism的CatalystRegistryHelper中的register方法
-     * 功能是一致的，只是多了一个需否需要基础机器的参数，平常使用可以直接填true，对于“ENERGY_CONVERSION”或“CHEMICAL_CONVERSION”
+     * 与Mekanism的CatalystRegistryHelper中的register方法功能是一致的，只是多了一个需否需要基础机器的参数，
+     * 平常使用可以直接填true，对于“ENERGY_CONVERSION”或“CHEMICAL_CONVERSION”
      * 可能得填写false。
      *
      * @param needOrdinary 是否需要注册最基础的机器

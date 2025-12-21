@@ -119,7 +119,7 @@ public class TileEntityWashingFactory extends TileEntityChemicalToChemicalFactor
 
     private int slotX() {
         if (Mekmm.hooks.evolvedMekanism.isLoaded() && tier.ordinal() >= EMFactoryTier.OVERCLOCKED.ordinal()) {
-            return 214 + 8 * tier.ordinal();
+            return 214 + 38 * (tier.ordinal() - 3);
         }
         return tier == FactoryTier.ULTIMATE ? 214 : 180;
     }
