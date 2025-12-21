@@ -30,7 +30,7 @@ public class AdvancedFactoryBlockTypes {
     private static final Table<FactoryTier, AdvancedFactoryType, AdvancedFactory<?>> AF_FACTORIES = HashBasedTable.create();
 
     // Chemical Oxidizer
-    public static final MoreMachineMachine.MoreMachineFactoryMachine<TileEntityChemicalOxidizer> CHEMICAL_OXIDIZER = MoreMachineMachine.MMMachineBuilder
+    public static final MoreMachineMachine.MoreMachineFactoryMachine<TileEntityChemicalOxidizer> CHEMICAL_OXIDIZER = MoreMachineMachine.MoreMachineMachineBuilder
             .createAdvancedFactoryMachine(() -> MekanismTileEntityTypes.CHEMICAL_OXIDIZER, MekanismLang.DESCRIPTION_CHEMICAL_OXIDIZER, AdvancedFactoryType.OXIDIZING)
             .withGui(() -> MekanismContainerTypes.CHEMICAL_OXIDIZER)
             .withSound(MekanismSounds.CHEMICAL_OXIDIZER)
@@ -41,7 +41,7 @@ public class AdvancedFactoryBlockTypes {
             .build();
 
     // Chemical Dissolution Chamber
-    public static final MoreMachineMachine.MoreMachineFactoryMachine<TileEntityChemicalDissolutionChamber> CHEMICAL_DISSOLUTION_CHAMBER = MoreMachineMachine.MMMachineBuilder
+    public static final MoreMachineMachine.MoreMachineFactoryMachine<TileEntityChemicalDissolutionChamber> CHEMICAL_DISSOLUTION_CHAMBER = MoreMachineMachine.MoreMachineMachineBuilder
             .createAdvancedFactoryMachine(() -> MekanismTileEntityTypes.CHEMICAL_DISSOLUTION_CHAMBER, MekanismLang.DESCRIPTION_CHEMICAL_DISSOLUTION_CHAMBER, AdvancedFactoryType.DISSOLVING)
             .withGui(() -> MekanismContainerTypes.CHEMICAL_DISSOLUTION_CHAMBER)
             .withSound(MekanismSounds.CHEMICAL_DISSOLUTION_CHAMBER)
@@ -53,7 +53,7 @@ public class AdvancedFactoryBlockTypes {
             .build();
 
     // Chemical Infuser
-    public static final MoreMachineMachine.MoreMachineFactoryMachine<TileEntityChemicalInfuser> CHEMICAL_INFUSER = MoreMachineMachine.MMMachineBuilder
+    public static final MoreMachineMachine.MoreMachineFactoryMachine<TileEntityChemicalInfuser> CHEMICAL_INFUSER = MoreMachineMachine.MoreMachineMachineBuilder
             .createAdvancedFactoryMachine(() -> MekanismTileEntityTypes.CHEMICAL_INFUSER, MekanismLang.DESCRIPTION_CHEMICAL_INFUSER, AdvancedFactoryType.CHEMICAL_INFUSING)
             .withGui(() -> MekanismContainerTypes.CHEMICAL_INFUSER)
             .withSound(MekanismSounds.CHEMICAL_INFUSER)
@@ -64,7 +64,7 @@ public class AdvancedFactoryBlockTypes {
             .build();
 
     // Chemical Washer
-    public static final MoreMachineMachine.MoreMachineFactoryMachine<TileEntityChemicalWasher> CHEMICAL_WASHER = MoreMachineMachine.MMMachineBuilder
+    public static final MoreMachineMachine.MoreMachineFactoryMachine<TileEntityChemicalWasher> CHEMICAL_WASHER = MoreMachineMachine.MoreMachineMachineBuilder
             .createAdvancedFactoryMachine(() -> MekanismTileEntityTypes.CHEMICAL_WASHER, MekanismLang.DESCRIPTION_CHEMICAL_WASHER, AdvancedFactoryType.WASHING)
             .withGui(() -> MekanismContainerTypes.CHEMICAL_WASHER)
             .withSound(MekanismSounds.CHEMICAL_WASHER)
@@ -75,7 +75,7 @@ public class AdvancedFactoryBlockTypes {
             .build();
 
     // Pressurized Reaction Chamber
-    public static final MoreMachineMachine.MoreMachineFactoryMachine<TileEntityPressurizedReactionChamber> PRESSURIZED_REACTION_CHAMBER = MoreMachineMachine.MMMachineBuilder
+    public static final MoreMachineMachine.MoreMachineFactoryMachine<TileEntityPressurizedReactionChamber> PRESSURIZED_REACTION_CHAMBER = MoreMachineMachine.MoreMachineMachineBuilder
             .createAdvancedFactoryMachine(() -> MekanismTileEntityTypes.PRESSURIZED_REACTION_CHAMBER, MekanismLang.DESCRIPTION_PRESSURIZED_REACTION_CHAMBER, AdvancedFactoryType.PRESSURISED_REACTING)
             .withGui(() -> MekanismContainerTypes.PRESSURIZED_REACTION_CHAMBER)
             .withSound(MekanismSounds.PRESSURIZED_REACTION_CHAMBER)
@@ -86,7 +86,7 @@ public class AdvancedFactoryBlockTypes {
             .build();
 
     // Chemical Crystallizer
-    public static final MoreMachineMachine.MoreMachineFactoryMachine<TileEntityChemicalCrystallizer> CHEMICAL_CRYSTALLIZER = MoreMachineMachine.MMMachineBuilder
+    public static final MoreMachineMachine.MoreMachineFactoryMachine<TileEntityChemicalCrystallizer> CHEMICAL_CRYSTALLIZER = MoreMachineMachine.MoreMachineMachineBuilder
             .createAdvancedFactoryMachine(() -> MekanismTileEntityTypes.CHEMICAL_CRYSTALLIZER, MekanismLang.DESCRIPTION_CHEMICAL_CRYSTALLIZER, AdvancedFactoryType.CRYSTALLIZING)
             .withGui(() -> MekanismContainerTypes.CHEMICAL_CRYSTALLIZER)
             .withSound(MekanismSounds.CHEMICAL_CRYSTALLIZER)
@@ -97,7 +97,7 @@ public class AdvancedFactoryBlockTypes {
             .build();
 
     // Isotopic Centrifuge
-    public static final MoreMachineMachine.MoreMachineFactoryMachine<TileEntityIsotopicCentrifuge> ISOTOPIC_CENTRIFUGE = MoreMachineMachine.MMMachineBuilder
+    public static final MoreMachineMachine.MoreMachineFactoryMachine<TileEntityIsotopicCentrifuge> ISOTOPIC_CENTRIFUGE = MoreMachineMachine.MoreMachineMachineBuilder
             .createAdvancedFactoryMachine(() -> MekanismTileEntityTypes.ISOTOPIC_CENTRIFUGE, MekanismLang.DESCRIPTION_ISOTOPIC_CENTRIFUGE, AdvancedFactoryType.CENTRIFUGING)
             .withGui(() -> MekanismContainerTypes.ISOTOPIC_CENTRIFUGE)
             .withEnergyConfig(MekanismConfig.usage.isotopicCentrifuge, MekanismConfig.storage.isotopicCentrifuge)
@@ -109,7 +109,7 @@ public class AdvancedFactoryBlockTypes {
             .build();
 
     // Nutritional Liquifier
-    public static final MoreMachineMachine.MoreMachineFactoryMachine<TileEntityNutritionalLiquifier> NUTRITIONAL_LIQUIFIER = MoreMachineMachine.MMMachineBuilder
+    public static final MoreMachineMachine.MoreMachineFactoryMachine<TileEntityNutritionalLiquifier> NUTRITIONAL_LIQUIFIER = MoreMachineMachine.MoreMachineMachineBuilder
             .createAdvancedFactoryMachine(() -> MekanismTileEntityTypes.NUTRITIONAL_LIQUIFIER, MekanismLang.DESCRIPTION_NUTRITIONAL_LIQUIFIER, AdvancedFactoryType.LIQUIFYING)
             .withGui(() -> MekanismContainerTypes.NUTRITIONAL_LIQUIFIER)
             .withEnergyConfig(MekanismConfig.usage.nutritionalLiquifier, MekanismConfig.storage.nutritionalLiquifier)

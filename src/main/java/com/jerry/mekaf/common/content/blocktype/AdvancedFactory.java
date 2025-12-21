@@ -47,7 +47,7 @@ public class AdvancedFactory<TILE extends TileEntityAdvancedFactoryBase<?>> exte
         }
     }
 
-    public static class AdvancedFactoryBuilder<FACTORY extends AdvancedFactory<TILE>, TILE extends TileEntityAdvancedFactoryBase<?>, T extends MMMachineBuilder<FACTORY, TILE, T>>
+    public static class AdvancedFactoryBuilder<FACTORY extends AdvancedFactory<TILE>, TILE extends TileEntityAdvancedFactoryBase<?>, T extends MoreMachineMachineBuilder<FACTORY, TILE, T>>
                                               extends BlockTileBuilder<FACTORY, TILE, T> {
 
         protected AdvancedFactoryBuilder(FACTORY holder) {

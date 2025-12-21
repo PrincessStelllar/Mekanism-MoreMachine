@@ -1,6 +1,7 @@
 package com.jerry.mekmm.common.content.blocktype;
 
 import com.jerry.mekmm.common.block.attribute.MoreMachineAttributeFactoryType;
+import com.jerry.mekmm.common.content.blocktype.MoreMachineMachine.MoreMachineFactoryMachine;
 import com.jerry.mekmm.common.registries.MoreMachineBlocks;
 import com.jerry.mekmm.common.registries.MoreMachineContainerTypes;
 import com.jerry.mekmm.common.tile.factory.TileEntityMoreMachineFactory;
@@ -19,7 +20,7 @@ import net.minecraft.core.particles.ParticleTypes;
 
 import java.util.function.Supplier;
 
-public class MoreMachineFactory<TILE extends TileEntityMoreMachineFactory<?>> extends MoreMachineMachine.MoreMachineFactoryMachine<TILE> {
+public class MoreMachineFactory<TILE extends TileEntityMoreMachineFactory<?>> extends MoreMachineFactoryMachine<TILE> {
 
     private final MoreMachineFactoryMachine<?> origMachine;
 
@@ -41,7 +42,7 @@ public class MoreMachineFactory<TILE extends TileEntityMoreMachineFactory<?>> ex
         add(new AttributeEnergy(origEnergy::getUsage, () -> MathUtils.clampToLong(Math.max(origEnergy.getConfigStorage() * 0.5, origEnergy.getUsage()) * tier.processes)));
     }
 
-    public static class MoreMachineFactoryBuilder<FACTORY extends MoreMachineFactory<TILE>, TILE extends TileEntityMoreMachineFactory<?>, T extends MMMachineBuilder<FACTORY, TILE, T>>
+    public static class MoreMachineFactoryBuilder<FACTORY extends MoreMachineFactory<TILE>, TILE extends TileEntityMoreMachineFactory<?>, T extends MoreMachineMachineBuilder<FACTORY, TILE, T>>
                                                  extends BlockTileBuilder<FACTORY, TILE, T> {
 
         protected MoreMachineFactoryBuilder(FACTORY holder) {

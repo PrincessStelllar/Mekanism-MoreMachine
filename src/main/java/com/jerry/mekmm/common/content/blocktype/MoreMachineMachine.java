@@ -53,25 +53,25 @@ public class MoreMachineMachine<TILE extends TileEntityMekanism> extends BlockTy
         }
     }
 
-    public static class MMMachineBuilder<MACHINE extends MoreMachineMachine<TILE>, TILE extends TileEntityMekanism, T extends MMMachineBuilder<MACHINE, TILE, T>> extends BlockTileBuilder<MACHINE, TILE, T> {
+    public static class MoreMachineMachineBuilder<MACHINE extends MoreMachineMachine<TILE>, TILE extends TileEntityMekanism, T extends MoreMachineMachineBuilder<MACHINE, TILE, T>> extends BlockTileBuilder<MACHINE, TILE, T> {
 
-        protected MMMachineBuilder(MACHINE holder) {
+        protected MoreMachineMachineBuilder(MACHINE holder) {
             super(holder);
         }
 
-        public static <TILE extends TileEntityMekanism> MMMachineBuilder<MoreMachineMachine<TILE>, TILE, ?> createMMMachine(Supplier<TileEntityTypeRegistryObject<TILE>> tileEntityRegistrar,
-                                                                                                                            ILangEntry description) {
-            return new MMMachineBuilder<>(new MoreMachineMachine<>(tileEntityRegistrar, description));
+        public static <TILE extends TileEntityMekanism> MoreMachineMachineBuilder<MoreMachineMachine<TILE>, TILE, ?> createMoreMachineMachine(Supplier<TileEntityTypeRegistryObject<TILE>> tileEntityRegistrar,
+                                                                                                                                              ILangEntry description) {
+            return new MoreMachineMachineBuilder<>(new MoreMachineMachine<>(tileEntityRegistrar, description));
         }
 
-        public static <TILE extends TileEntityMekanism> MMMachineBuilder<MoreMachineFactoryMachine<TILE>, TILE, ?> createMMFactoryMachine(Supplier<TileEntityTypeRegistryObject<TILE>> tileEntityRegistrar,
-                                                                                                                                          ILangEntry description, MoreMachineFactoryType factoryType) {
-            return new MMMachineBuilder<>(new MoreMachineFactoryMachine<>(tileEntityRegistrar, description, factoryType));
+        public static <TILE extends TileEntityMekanism> MoreMachineMachineBuilder<MoreMachineFactoryMachine<TILE>, TILE, ?> createMoreMachineFactoryMachine(Supplier<TileEntityTypeRegistryObject<TILE>> tileEntityRegistrar,
+                                                                                                                                                            ILangEntry description, MoreMachineFactoryType factoryType) {
+            return new MoreMachineMachineBuilder<>(new MoreMachineFactoryMachine<>(tileEntityRegistrar, description, factoryType));
         }
 
-        public static <TILE extends TileEntityMekanism> MMMachineBuilder<MoreMachineFactoryMachine<TILE>, TILE, ?> createAdvancedFactoryMachine(Supplier<TileEntityTypeRegistryObject<TILE>> tileEntityRegistrar,
-                                                                                                                                                ILangEntry description, AdvancedFactoryType factoryType) {
-            return new MMMachineBuilder<>(new MoreMachineFactoryMachine<>(tileEntityRegistrar, description, factoryType));
+        public static <TILE extends TileEntityMekanism> MoreMachineMachineBuilder<MoreMachineFactoryMachine<TILE>, TILE, ?> createAdvancedFactoryMachine(Supplier<TileEntityTypeRegistryObject<TILE>> tileEntityRegistrar,
+                                                                                                                                                         ILangEntry description, AdvancedFactoryType factoryType) {
+            return new MoreMachineMachineBuilder<>(new MoreMachineFactoryMachine<>(tileEntityRegistrar, description, factoryType));
         }
     }
 }

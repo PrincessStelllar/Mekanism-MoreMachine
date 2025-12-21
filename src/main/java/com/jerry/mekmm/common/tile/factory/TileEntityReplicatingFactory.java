@@ -59,7 +59,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-public class TileEntityReplicatingFactory extends TileEntityItemToItemMoreMachineFactory<MMBasicItemStackChemicalToItemStackRecipe> implements IHasDumpButton,
+public class TileEntityReplicatingFactory extends TileEntityMoreMachineItemToItemFactory<MMBasicItemStackChemicalToItemStackRecipe> implements IHasDumpButton,
                                           ItemChemicalRecipeLookupHandler<MMBasicItemStackChemicalToItemStackRecipe> {
 
     protected static final DoubleInputRecipeCache.CheckRecipeType<ItemStack, ChemicalStack, MMBasicItemStackChemicalToItemStackRecipe, ItemStack> OUTPUT_CHECK = (recipe, input, extra, output) -> InventoryUtils.areItemsStackable(recipe.getOutput(input, extra), output);

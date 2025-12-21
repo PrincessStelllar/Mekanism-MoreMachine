@@ -12,6 +12,8 @@ import mekanism.common.registration.impl.CreativeTabDeferredRegister;
 
 import net.minecraft.world.item.CreativeModeTab;
 
+import com.jerry.meklg.common.registries.LargeGeneratorBlocks;
+
 public class MoreMachineCreativeTabs {
 
     public static final CreativeTabDeferredRegister MM_CREATIVE_TABS = new CreativeTabDeferredRegister(Mekmm.MOD_ID);
@@ -22,5 +24,8 @@ public class MoreMachineCreativeTabs {
                 CreativeTabDeferredRegister.addToDisplay(MoreMachineBlocks.MM_BLOCKS, output);
                 CreativeTabDeferredRegister.addToDisplay(AdvancedFactoryBlocks.AF_BLOCKS, output);
                 CreativeTabDeferredRegister.addToDisplay(LargeMachineBlocks.LM_BLOCKS, output);
+                if (Mekmm.hooks.mekanismgenerators.isLoaded()) {
+                    CreativeTabDeferredRegister.addToDisplay(LargeGeneratorBlocks.LG_BLOCKS, output);
+                }
             }));
 }
